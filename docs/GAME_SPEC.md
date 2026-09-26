@@ -10,4 +10,4 @@ Resolution order after a removal: route (lowest-index matching tray with room â†
 - Loss: no structurally available screw has a destination and no automatic transfer remains. A full buffer alone is not a loss. Loss is recoverable (undo/restart) in the same attempt.
 - Rejected command: no revision change, no event, no undo entry.
 - Help: 1 free undo + 1 free useful hint per attempt; restarts unlimited; rewarded ad = +1 banked help credit. No paid consumables, no timers.
-- Resolver example is encoded as the regression fixture `RulesTests.ResolverExample_*`.
+- Resolver example is encoded as the regression fixture `RulesTests.ResolverFixture_CascadesInInsertionOrder`.
