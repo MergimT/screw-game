@@ -70,6 +70,7 @@ namespace ScrewGame.Session
                         return StartKind.Resumed;
                     }
                 }
+                saved.Terminal = AttemptOutcome.Replaced;
                 NewAttempt(level, isDaily, dailyDate);
                 return StartKind.ReplacedIncompatible;
             }
@@ -207,6 +208,7 @@ namespace ScrewGame.Session
         private void CloseWithVictory()
         {
             Attempt.Closed = true;
+            Attempt.Terminal = AttemptOutcome.Won;
             var id = Engine.Level.Definition.Id;
             bool first;
             if (Attempt.IsDaily) first = DailyChallenge.RecordCompletion(Profile, Attempt.DailyDate);
@@ -214,9 +216,14 @@ namespace ScrewGame.Session
             Emit("level_win", Engine.Level, new Dictionary<string, object> { ["first_win"] = first, ["daily"] = Attempt.IsDaily });
         }
 
+        private readonly List<KeyValuePair<string, Dictionary<string, object>>> _deferred = new List<KeyValuePair<string, Dictionary<string, object>>>();
+        private bool _inTransaction;
+
         private CommandResult Transact(Func<CommandResult> action)
         {
             _busy = true;
+            _inTransaction = true;
+            _deferred.Clear();
             try
             {
                 var profileBefore = SaveStore.Clone(Profile);
@@ -228,9 +235,13 @@ namespace ScrewGame.Session
                 SyncAttempt();
                 if (Commit(out _))
                 {
+                    _inTransaction = false;
+                    foreach (var e in _deferred) Analytics?.Invoke(e.Key, e.Value);
+                    _deferred.Clear();
                     if (Engine.Outcome == Outcome.Lost) Emit("level_stuck", Engine.Level, null);
                     return r;
                 }
+                _deferred.Clear();
                 Profile = profileBefore;
                 Engine.RollBack(stateBefore, revBefore, historyBefore);
                 return CommandResult.Reject(RejectReason.SaveFailed, revBefore);
@@ -238,6 +249,7 @@ namespace ScrewGame.Session
             finally
             {
                 _busy = false;
+                _inTransaction = false;
             }
         }
 
@@ -263,7 +275,8 @@ namespace ScrewGame.Session
             p["content_hash"] = level.ContentHash.Substring(0, 12);
             p["attempt_id"] = Attempt?.AttemptId ?? "";
             p["revision"] = Engine?.Revision ?? 0;
-            Analytics(name, p);
+            if (_inTransaction) _deferred.Add(new KeyValuePair<string, Dictionary<string, object>>(name, p));
+            else Analytics(name, p);
         }
     }
 

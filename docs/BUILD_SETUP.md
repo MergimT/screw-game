@@ -12,7 +12,7 @@
 ```bash
 cd tools/dotnet
 export PATH=$HOME/.dotnet:$PATH DOTNET_CLI_TELEMETRY_OPTOUT=1
-dotnet test ScrewGame.Tests                       # 96/96 passed on 2026-09-26
+dotnet test ScrewGame.Tests                       # 99/99 passed on 2026-09-26
 dotnet run --project ScrewGame.Cli -c Release -- validate \
   ../../Assets/ScrewGame/Resources/Levels ../../reports/level-validation.json 2000000
 ```

@@ -195,6 +195,26 @@ namespace ScrewGame.Tests
         }
 
         [Test]
+        public void VictoryAnalytics_EmittedOnlyAfterDurableCommit_AndTerminalOutcomeSeparate()
+        {
+            var (s, disk, _) = NewSession();
+            var level = Level("L01");
+            var events = new List<string>();
+            s.Analytics += (n, p) => events.Add(n);
+            s.Start(level);
+            var w = Witness(level);
+            for (int i = 0; i < w.Count - 1; i++) s.Remove(w[i], s.Engine.Revision);
+            disk.FailWritesRemaining = 1;
+            Assert.AreEqual(RejectReason.SaveFailed, s.Remove(w[w.Count - 1], s.Engine.Revision).Reason);
+            CollectionAssert.DoesNotContain(events, "level_win");
+            Assert.AreEqual(AttemptOutcome.Open, s.Attempt.Terminal);
+            Assert.IsTrue(s.Remove(w[w.Count - 1], s.Engine.Revision).Accepted);
+            Assert.AreEqual(1, events.Count(e => e == "level_win"));
+            Assert.AreEqual(AttemptOutcome.Won, s.Attempt.Terminal);
+            Assert.AreEqual(RejectReason.AttemptClosed, s.Undo(s.Engine.Revision).Reason, "undo cannot revoke a recorded win");
+        }
+
+        [Test]
         public void ChangedContent_ReplacesIncompatibleAttempt()
         {
             var (s, disk, _) = NewSession();

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ScrewGame.Contracts;
 using ScrewGame.Core;
 
 namespace ScrewGame.Persistence
@@ -73,8 +74,10 @@ namespace ScrewGame.Persistence
     [Serializable]
     public sealed class ConsentData
     {
-        /// <summary>null = not asked yet.</summary>
+        /// <summary>null = not asked yet. Independent of ad consent and tracking authorization.</summary>
         public bool? AnalyticsAllowed;
+        public ConsentStatus AdConsent = ConsentStatus.Unknown;
+        public TrackingAuthorization Tracking = TrackingAuthorization.NotDetermined;
     }
 
     [Serializable]
@@ -90,6 +93,8 @@ namespace ScrewGame.Persistence
         public int FreeUndoRemaining = 1;
         public int FreeHintRemaining = 1;
         public bool Closed;
+        /// <summary>Terminal outcome tracked outside the puzzle payload; undo never changes it.</summary>
+        public AttemptOutcome Terminal = AttemptOutcome.Open;
         public PuzzleState State;
         public List<PuzzleState> History = new List<PuzzleState>();
     }
