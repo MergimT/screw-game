@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>Screw Puzzle 3D</title>
+  <link rel="stylesheet" href="src/style.css" />
+  <script type="importmap">
+    { "imports": { "three": "./vendor/three.module.js", "three/addons/": "./vendor/addons/" } }
+  </script>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div id="hud">
+    <div class="pill" id="level">Level 1</div>
+    <div class="pill" id="left">0 screws left</div>
+    <button class="pill btn" id="restart" title="Restart level">Restart</button>
+  </div>
+  <div id="hint">Tap a screw to unscrew it. Fill each box with 3 screws of its color. Don't let the tray fill up!</div>
+  <div id="overlay" class="hidden">
+    <div class="card">
+      <h2 id="title"></h2>
+      <p id="msg"></p>
+      <button class="btn big" id="action"></button>
+    </div>
+  </div>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
