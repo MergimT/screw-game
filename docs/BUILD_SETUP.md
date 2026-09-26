@@ -31,6 +31,6 @@ xvfb-run -a $U -batchmode -quit -projectPath . -buildTarget Android -executeMeth
 # iOS Xcode export -> Builds/iOS/Xcode (archive/sign on macOS)
 xvfb-run -a $U -batchmode -quit -projectPath . -buildTarget iOS -executeMethod ScrewGame.EditorTools.BuildScripts.IosXcodeExport -logFile -
 ```
-Last attempted: `Unity -batchmode -quit -nographics -username … -password …` → exit 198, "No valid Unity Editor license found" (entitlement `com.unity.editor.headless` not found).
+Last attempted: `Unity -batchmode -quit -nographics -username … -password …` → exit 198, "No valid Unity Editor license found" (entitlement `com.unity.editor.headless` not found). Retried with the Student Plan account: same result; GUI-mode editor under Xvfb: `com.unity.editor.ui` not found until a license is activated in Unity Hub.
 
 Build stages are distinct: Unity compilation ≠ Xcode export ≠ Xcode archive ≠ signed device install; Android development APK ≠ release AAB. None have been achieved yet.
