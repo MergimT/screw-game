@@ -98,6 +98,34 @@ namespace ScrewGame.Presentation
             return Store(key, verts, normals, tris);
         }
 
+        public static Mesh Sphere(float radius, int rings = 20, int sides = 32)
+        {
+            var key = $"sp{radius:F3}_{rings}_{sides}";
+            if (Cache.TryGetValue(key, out var cached)) return cached;
+            var verts = new List<Vector3>();
+            var normals = new List<Vector3>();
+            var tris = new List<int>();
+            for (int r = 0; r <= rings; r++)
+            {
+                float v = r / (float)rings * Mathf.PI;
+                for (int s = 0; s <= sides; s++)
+                {
+                    float u = s / (float)sides * Mathf.PI * 2f;
+                    var n = new Vector3(Mathf.Sin(v) * Mathf.Cos(u), Mathf.Cos(v), Mathf.Sin(v) * Mathf.Sin(u));
+                    verts.Add(n * radius);
+                    normals.Add(n);
+                }
+            }
+            for (int r = 0; r < rings; r++)
+            for (int s = 0; s < sides; s++)
+            {
+                int a = r * (sides + 1) + s, b = a + sides + 1;
+                tris.Add(a); tris.Add(a + 1); tris.Add(b);
+                tris.Add(a + 1); tris.Add(b + 1); tris.Add(b);
+            }
+            return Store(key, verts, normals, tris);
+        }
+
         public static Mesh Disc(float radius, int sides = 28)
         {
             var key = $"disc{radius:F3}_{sides}";

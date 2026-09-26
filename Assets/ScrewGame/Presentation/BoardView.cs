@@ -18,10 +18,10 @@ namespace ScrewGame.Presentation
         public Transform TrayAnchor;
 
         private const float HoldScrewScale = 1.15f;
-        private const float TraySpacing = 2.1f;
+        private const float TraySpacing = 1.85f;
         private const float TrayRowZ = 0.55f;
         private const float BufferRowZ = -1.05f;
-        private const float BufferSpacing = 0.78f;
+        private const float BufferSpacing = 0.62f;
         private const float HoldingDepth = 6f;
         private const float TrayTop = 0.36f;
         private static readonly Vector2[] TrayHoles = { new Vector2(0f, 0.27f), new Vector2(-0.3f, -0.22f), new Vector2(0.3f, -0.22f) };
@@ -60,19 +60,39 @@ namespace ScrewGame.Presentation
                 var size = V(p.Size);
                 float minDim = Mathf.Min(size.x, Mathf.Min(size.y, size.z));
                 var color = Palette.PartMaterial[Mathf.Abs(p.Material) % Palette.PartMaterial.Length];
-                Mesh mesh = p.Shape == "cylinder"
-                    ? MeshKit.Cylinder(Mathf.Max(size.x, size.z) * 0.5f, size.y, 40, -1f, Mathf.Min(0.06f, minDim * 0.3f))
-                    : MeshKit.RoundedBox(size, Mathf.Min(0.09f, minDim * 0.35f));
-                var go = MeshKit.Make("Part " + p.Id, mesh, Mat(color, 0.72f, 0f), _objectRoot);
+                bool cylinder = p.Shape == "cylinder";
+                Mesh mesh = cylinder
+                    ? MeshKit.Cylinder(Mathf.Max(size.x, size.z) * 0.5f, size.y, 40, -1f, Mathf.Min(0.12f, minDim * 0.3f))
+                    : p.Shape == "sphere"
+                        ? MeshKit.Sphere(size.x * 0.5f)
+                        : MeshKit.RoundedBox(size, Mathf.Min(0.16f, minDim * 0.42f));
+                var go = MeshKit.Make("Part " + p.Id, mesh, Mat(color, 0.62f, 0f), _objectRoot);
                 go.transform.localPosition = V(p.Position);
                 go.transform.localEulerAngles = V(p.Rotation);
-                Collider col;
-                if (p.Shape == "cylinder")
+                if (cylinder)
                 {
-                    var mc = go.AddComponent<MeshCollider>();
-                    mc.sharedMesh = mesh;
-                    mc.convex = true;
-                    col = mc;
+                    var holder = new GameObject("Part " + p.Id);
+                    holder.transform.SetParent(_objectRoot, false);
+                    holder.transform.localPosition = V(p.Position);
+                    holder.transform.localEulerAngles = V(p.Rotation);
+                    go.name = "Mesh";
+                    go.transform.SetParent(holder.transform, false);
+                    go.transform.localPosition = new Vector3(0f, -size.y * 0.5f, 0f);
+                    go.transform.localRotation = Quaternion.identity;
+                    go = holder;
+                }
+                Collider col;
+                if (p.Shape == "sphere")
+                {
+                    var sc = go.AddComponent<SphereCollider>();
+                    sc.radius = size.x * 0.5f;
+                    col = sc;
+                }
+                else if (cylinder)
+                {
+                    var cc = go.AddComponent<BoxCollider>();
+                    cc.size = size;
+                    col = cc;
                 }
                 else
                 {
@@ -177,15 +197,15 @@ namespace ScrewGame.Presentation
                 _handleRenderers.Add(handle.GetComponent<Renderer>());
                 _trays.Add(tray.transform);
             }
-            var socketMat = Mat(Palette.Slot, 0.55f, 0f);
+            var socketMat = Mat(Palette.Socket, 0.5f, 0f);
             var socketInner = Mat(Palette.SlotInner, 0.3f, 0f);
-            var socketMesh = MeshKit.Cylinder(0.3f, 0.12f, 32, 0.3f, 0.05f);
+            var socketMesh = MeshKit.Cylinder(0.24f, 0.08f, 32, 0.24f, 0.035f);
             for (int b = 0; b < level.BufferSlots; b++)
             {
                 var pos = new Vector3((b - (level.BufferSlots - 1) * 0.5f) * BufferSpacing, 0f, BufferRowZ);
                 var sock = MeshKit.Make("Socket", socketMesh, socketMat, _holdRoot);
                 sock.transform.localPosition = pos - new Vector3(0f, 0.12f, 0f);
-                var inner = MeshKit.Make("Hole", MeshKit.Disc(0.21f), socketInner, _holdRoot, false);
+                var inner = MeshKit.Make("Hole", MeshKit.Disc(0.17f), socketInner, _holdRoot, false);
                 inner.transform.localPosition = pos + new Vector3(0f, 0.004f, 0f);
                 _bufferPos.Add(pos);
             }

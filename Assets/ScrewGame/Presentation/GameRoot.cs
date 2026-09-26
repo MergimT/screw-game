@@ -173,19 +173,36 @@ namespace ScrewGame.Presentation
                 var c = k > 0.5f ? Color.Lerp(Palette.Background, Palette.BackgroundTop, (k - 0.5f) / 0.5f) : Color.Lerp(Palette.BackgroundBottom, Palette.Background, k / 0.5f);
                 for (int x = 0; x < w; x++) px[y * w + x] = c;
             }
-            var rng = new System.Random(7);
-            for (int i = 0; i < 26; i++)
+            float[] cloudX = { 0.18f, 0.82f, 0.55f, 0.08f, 0.95f };
+            float[] cloudY = { 0.80f, 0.70f, 0.93f, 0.52f, 0.45f };
+            float[] cloudS = { 1f, 1.2f, 0.7f, 0.8f, 0.9f };
+            for (int c = 0; c < cloudX.Length; c++)
+            for (int puff = 0; puff < 5; puff++)
             {
-                float cx = (float)rng.NextDouble() * w, cy = (float)rng.NextDouble() * h, sr = 4f + (float)rng.NextDouble() * 7f;
-                float alpha = i < 8 ? 0.55f : 0.18f;
-                for (int y = Mathf.Max(0, (int)(cy - sr)); y < Mathf.Min(h, (int)(cy + sr) + 1); y++)
-                for (int x = Mathf.Max(0, (int)(cx - sr)); x < Mathf.Min(w, (int)(cx + sr) + 1); x++)
+                float pr = (puff == 2 ? 26f : puff % 2 == 0 ? 17f : 21f) * cloudS[c];
+                float pcx = cloudX[c] * w + (puff - 2) * 17f * cloudS[c];
+                float pcy = cloudY[c] * h + (puff == 2 ? 10f : puff % 2 == 1 ? 5f : 0f) * cloudS[c];
+                for (int y = Mathf.Max(0, (int)(pcy - pr)); y < Mathf.Min(h, (int)(pcy + pr) + 1); y++)
+                for (int x = Mathf.Max(0, (int)(pcx - pr)); x < Mathf.Min(w, (int)(pcx + pr) + 1); x++)
                 {
-                    float dx = Mathf.Abs(x - cx) / sr, dy = Mathf.Abs(y - cy) / sr;
-                    float star = Mathf.Clamp01(1f - (Mathf.Sqrt(dx) + Mathf.Sqrt(dy)));
-                    if (star <= 0f) continue;
+                    float d = Mathf.Sqrt((x - pcx) * (x - pcx) + (y - pcy) * (y - pcy)) / pr;
+                    if (d > 1f || y < cloudY[c] * h - 6f * cloudS[c]) continue;
                     int idx = y * w + x;
-                    px[idx] = Color.Lerp(px[idx], Color.white, star * 3f * alpha > 1f ? alpha : star * 3f * alpha);
+                    var cloud = Color.Lerp(Color.white, new Color(0.86f, 0.93f, 1f), Mathf.Clamp01((cloudY[c] * h + pr - y) / (2f * pr)) * 0.5f);
+                    px[idx] = Color.Lerp(px[idx], cloud, Mathf.Clamp01((1f - d) * 6f) * 0.92f);
+                }
+            }
+            for (int x = 0; x < w; x++)
+            {
+                float fx = x / (float)w;
+                int far = (int)(h * (0.22f + 0.035f * Mathf.Sin(fx * 7.5f + 1.2f) + 0.02f * Mathf.Sin(fx * 17f)));
+                int near = (int)(h * (0.14f + 0.04f * Mathf.Sin(fx * 5f + 3.5f)));
+                for (int y = 0; y < Mathf.Min(h, far); y++)
+                {
+                    int idx = y * w + x;
+                    if (y < near) px[idx] = Color.Lerp(Palette.Hill * 0.82f, Palette.Hill, y / (float)Mathf.Max(1, near));
+                    else px[idx] = Color.Lerp(Palette.HillFar, Palette.HillFar * 0.93f, (far - y) / 40f);
+                    px[idx].a = 1f;
                 }
             }
             tex.SetPixels(px);
@@ -200,7 +217,7 @@ namespace ScrewGame.Presentation
             Destroy(quad.GetComponent<Collider>());
             quad.transform.SetParent(cam, false);
             quad.transform.localPosition = new Vector3(0f, 0f, 55f);
-            quad.transform.localScale = new Vector3(70f, 70f, 1f);
+            quad.transform.localScale = new Vector3(27f, 50f, 1f);
             var r = quad.GetComponent<Renderer>();
             r.sharedMaterial = mat;
             r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
@@ -406,6 +423,8 @@ namespace ScrewGame.Presentation
             string title = daily ? Loc.T("daily") : Loc.F("level", _campaign.IndexOf(level.Definition.Id) + 1).ToUpperInvariant();
             _levelLabel = UiKit.Label(titleHolder, "<size=60>" + title + "</size>\n<size=30>" + level.Definition.Name + "</size>", 60f);
             _levelLabel.fontStyle = TMPro.FontStyles.Bold;
+            _levelLabel.outlineWidth = 0.22f;
+            _levelLabel.outlineColor = Palette.Outline;
 
             var tut = UiKit.Empty(_hud, "Tutorial");
             UiKit.Place(tut, new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.125f));

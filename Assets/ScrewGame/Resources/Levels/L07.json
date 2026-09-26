@@ -1,72 +1,80 @@
 {
   "SchemaVersion": 1,
   "Id": "L07",
-  "ContentVersion": 1,
-  "Name": "Garden Shed",
-  "ObjectId": "shed",
-  "Family": "buildings",
-  "TrayPositions": 2,
+  "ContentVersion": 2,
+  "Name": "Rocket",
+  "ObjectId": "rocket",
+  "Family": "space",
+  "TrayPositions": 4,
   "TrayCapacity": 3,
   "BufferSlots": 5,
   "TrayQueue": [
-    0,
-    1,
     2,
-    0,
+    4,
     3,
-    1
+    0,
+    5,
+    3,
+    1,
+    0,
+    5,
+    2,
+    3
   ],
   "Parts": [
     {
-      "Id": "roof_l",
+      "Id": "nose",
       "Blockers": [],
-      "Shape": "box",
+      "Shape": "sphere",
       "Position": [
-        -0.7,
-        1.35,
+        0,
+        2.55,
         0
       ],
       "Rotation": [
         0,
         0,
-        25
+        0
       ],
       "Size": [
-        1.6,
-        0.15,
-        2.2
+        1.24,
+        1.24,
+        1.24
       ],
-      "Material": 5
+      "Material": 8
     },
     {
-      "Id": "roof_r",
+      "Id": "window",
       "Blockers": [],
       "Shape": "box",
       "Position": [
+        0,
+        1.75,
+        0.66
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
         0.7,
-        1.35,
-        0
+        0.7,
+        0.1
       ],
-      "Rotation": [
-        0,
-        0,
-        -25
-      ],
-      "Size": [
-        1.6,
-        0.15,
-        2.2
-      ],
-      "Material": 5
+      "Material": 1
     },
     {
-      "Id": "door",
-      "Blockers": [],
+      "Id": "upper",
+      "Blockers": [
+        "nose",
+        "window"
+      ],
       "Shape": "box",
       "Position": [
         0,
-        0.2,
-        1.0
+        1.55,
+        0
       ],
       "Rotation": [
         0,
@@ -74,68 +82,111 @@
         0
       ],
       "Size": [
+        1.3,
+        1.1,
+        1.3
+      ],
+      "Material": 7
+    },
+    {
+      "Id": "band",
+      "Blockers": [
+        "upper"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.8,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.45,
+        0.4,
+        1.45
+      ],
+      "Material": 8
+    },
+    {
+      "Id": "lower",
+      "Blockers": [
+        "band"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.05,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.3,
+        1.1,
+        1.3
+      ],
+      "Material": 7
+    },
+    {
+      "Id": "fin_l",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        -0.95,
+        -0.25,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        -12
+      ],
+      "Size": [
+        0.6,
         0.9,
-        1.4,
-        0.1
+        0.14
       ],
-      "Material": 3
+      "Material": 6
     },
     {
-      "Id": "wall_f",
-      "Blockers": [
-        "door"
-      ],
-      "Shape": "box",
-      "Position": [
-        0,
-        0.3,
-        0.95
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        2.6,
-        1.6,
-        0.1
-      ],
-      "Material": 1
-    },
-    {
-      "Id": "wall_b",
+      "Id": "fin_r",
       "Blockers": [],
       "Shape": "box",
       "Position": [
-        0,
-        0.3,
-        -0.95
+        0.95,
+        -0.25,
+        0
       ],
       "Rotation": [
         0,
         0,
-        0
+        12
       ],
       "Size": [
-        2.6,
-        1.6,
-        0.1
+        0.6,
+        0.9,
+        0.14
       ],
-      "Material": 1
+      "Material": 6
     },
     {
-      "Id": "floor",
+      "Id": "engine",
       "Blockers": [
-        "roof_l",
-        "roof_r",
-        "wall_f",
-        "wall_b"
+        "lower",
+        "fin_l",
+        "fin_r"
       ],
-      "Shape": "box",
+      "Shape": "cylinder",
       "Position": [
         0,
-        -0.55,
+        -0.75,
         0
       ],
       "Rotation": [
@@ -144,112 +195,112 @@
         0
       ],
       "Size": [
-        2.8,
-        0.15,
-        2.0
+        1.1,
+        0.45,
+        1.1
       ],
-      "Material": 0
+      "Material": 11
     }
   ],
   "Screws": [
     {
       "Id": "L07-s00",
-      "PartId": "roof_l",
-      "Color": 1,
+      "PartId": "nose",
+      "Color": 3,
       "Position": [
-        -0.7,
-        1.425,
-        -0.8
+        0.0,
+        3.119,
+        0.246
       ],
       "Normal": [
-        0,
-        1,
-        0
+        0.0,
+        0.9182,
+        0.3961
       ]
     },
     {
       "Id": "L07-s01",
-      "PartId": "roof_l",
-      "Color": 2,
+      "PartId": "nose",
+      "Color": 3,
       "Position": [
-        -0.7,
-        1.425,
-        0.0
+        0.272,
+        3.022,
+        -0.296
       ],
       "Normal": [
-        0,
-        1,
-        0
+        0.4379,
+        0.7614,
+        -0.478
       ]
     },
     {
       "Id": "L07-s02",
-      "PartId": "roof_l",
-      "Color": 0,
+      "PartId": "nose",
+      "Color": 2,
       "Position": [
-        -0.7,
-        1.425,
-        0.8
+        -0.488,
+        2.93,
+        0.043
       ],
       "Normal": [
-        0,
-        1,
-        0
+        -0.7868,
+        0.6133,
+        0.069
       ]
     },
     {
       "Id": "L07-s03",
-      "PartId": "roof_r",
-      "Color": 3,
+      "PartId": "nose",
+      "Color": 1,
       "Position": [
-        0.7,
-        1.425,
-        -0.8
+        0.297,
+        2.55,
+        0.544
       ],
       "Normal": [
-        0,
-        1,
-        0
+        0.4783,
+        0.0,
+        0.8782
       ]
     },
     {
       "Id": "L07-s04",
-      "PartId": "roof_r",
+      "PartId": "nose",
       "Color": 0,
       "Position": [
-        0.7,
-        1.425,
-        0.0
+        -0.348,
+        2.868,
+        0.403
       ],
       "Normal": [
-        0,
-        1,
-        0
+        -0.5607,
+        0.5136,
+        0.6495
       ]
     },
     {
       "Id": "L07-s05",
-      "PartId": "roof_r",
-      "Color": 1,
+      "PartId": "window",
+      "Color": 2,
       "Position": [
-        0.7,
-        1.425,
-        0.8
+        -0.07,
+        1.68,
+        0.71
       ],
       "Normal": [
         0,
-        1,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L07-s06",
-      "PartId": "door",
-      "Color": 0,
+      "PartId": "window",
+      "Color": 3,
       "Position": [
-        0.0,
-        -0.2,
-        1.05
+        0.07,
+        1.68,
+        0.71
       ],
       "Normal": [
         0,
@@ -259,12 +310,12 @@
     },
     {
       "Id": "L07-s07",
-      "PartId": "door",
-      "Color": 3,
+      "PartId": "window",
+      "Color": 2,
       "Position": [
         0.0,
-        0.2,
-        1.05
+        1.82,
+        0.71
       ],
       "Normal": [
         0,
@@ -274,12 +325,12 @@
     },
     {
       "Id": "L07-s08",
-      "PartId": "door",
-      "Color": 1,
+      "PartId": "upper",
+      "Color": 3,
       "Position": [
-        0.0,
-        0.6,
-        1.05
+        -0.37,
+        1.28,
+        0.65
       ],
       "Normal": [
         0,
@@ -289,12 +340,12 @@
     },
     {
       "Id": "L07-s09",
-      "PartId": "wall_f",
-      "Color": 2,
+      "PartId": "upper",
+      "Color": 3,
       "Position": [
-        -1.0,
-        0.3,
-        1.0
+        0.37,
+        1.28,
+        0.65
       ],
       "Normal": [
         0,
@@ -304,12 +355,12 @@
     },
     {
       "Id": "L07-s10",
-      "PartId": "wall_f",
-      "Color": 0,
+      "PartId": "upper",
+      "Color": 3,
       "Position": [
         0.0,
-        0.3,
-        1.0
+        1.82,
+        0.65
       ],
       "Normal": [
         0,
@@ -319,12 +370,57 @@
     },
     {
       "Id": "L07-s11",
-      "PartId": "wall_f",
-      "Color": 3,
+      "PartId": "upper",
+      "Color": 4,
       "Position": [
-        1.0,
-        0.3,
-        1.0
+        0.65,
+        1.55,
+        -0.37
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L07-s12",
+      "PartId": "upper",
+      "Color": 2,
+      "Position": [
+        0.65,
+        1.55,
+        0.37
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L07-s13",
+      "PartId": "upper",
+      "Color": 0,
+      "Position": [
+        -0.65,
+        1.55,
+        0.0
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L07-s14",
+      "PartId": "band",
+      "Color": 0,
+      "Position": [
+        -0.445,
+        0.8,
+        0.725
       ],
       "Normal": [
         0,
@@ -333,107 +429,287 @@
       ]
     },
     {
-      "Id": "L07-s12",
-      "PartId": "wall_b",
-      "Color": 1,
-      "Position": [
-        -1.0,
-        0.3,
-        -1.0
-      ],
-      "Normal": [
-        0,
-        0,
-        -1
-      ]
-    },
-    {
-      "Id": "L07-s13",
-      "PartId": "wall_b",
-      "Color": 1,
+      "Id": "L07-s15",
+      "PartId": "band",
+      "Color": 5,
       "Position": [
         0.0,
-        0.3,
-        -1.0
+        0.8,
+        0.725
       ],
       "Normal": [
         0,
         0,
-        -1
-      ]
-    },
-    {
-      "Id": "L07-s14",
-      "PartId": "wall_b",
-      "Color": 0,
-      "Position": [
-        1.0,
-        0.3,
-        -1.0
-      ],
-      "Normal": [
-        0,
-        0,
-        -1
-      ]
-    },
-    {
-      "Id": "L07-s15",
-      "PartId": "floor",
-      "Color": 0,
-      "Position": [
-        -1.1,
-        -0.475,
-        0.0
-      ],
-      "Normal": [
-        0,
-        1,
-        0
+        1
       ]
     },
     {
       "Id": "L07-s16",
-      "PartId": "floor",
-      "Color": 1,
+      "PartId": "band",
+      "Color": 4,
       "Position": [
-        0.0,
-        -0.475,
-        0.0
+        0.445,
+        0.8,
+        0.725
       ],
       "Normal": [
         0,
-        1,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L07-s17",
-      "PartId": "floor",
-      "Color": 2,
+      "PartId": "band",
+      "Color": 0,
       "Position": [
-        1.1,
-        -0.475,
+        0.725,
+        0.8,
         0.0
       ],
       "Normal": [
-        0,
         1,
+        0,
         0
+      ]
+    },
+    {
+      "Id": "L07-s18",
+      "PartId": "lower",
+      "Color": 2,
+      "Position": [
+        -0.37,
+        -0.22,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s19",
+      "PartId": "lower",
+      "Color": 0,
+      "Position": [
+        0.0,
+        -0.22,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s20",
+      "PartId": "lower",
+      "Color": 1,
+      "Position": [
+        0.37,
+        -0.22,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s21",
+      "PartId": "lower",
+      "Color": 5,
+      "Position": [
+        -0.37,
+        0.32,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s22",
+      "PartId": "lower",
+      "Color": 5,
+      "Position": [
+        0.0,
+        0.32,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s23",
+      "PartId": "lower",
+      "Color": 0,
+      "Position": [
+        0.37,
+        0.32,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s24",
+      "PartId": "lower",
+      "Color": 4,
+      "Position": [
+        0.65,
+        0.05,
+        -0.37
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L07-s25",
+      "PartId": "lower",
+      "Color": 5,
+      "Position": [
+        0.65,
+        0.05,
+        0.37
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L07-s26",
+      "PartId": "fin_l",
+      "Color": 2,
+      "Position": [
+        -0.95,
+        -0.42,
+        0.07
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s27",
+      "PartId": "fin_l",
+      "Color": 5,
+      "Position": [
+        -0.95,
+        -0.08,
+        0.07
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s28",
+      "PartId": "fin_r",
+      "Color": 1,
+      "Position": [
+        0.95,
+        -0.42,
+        0.07
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s29",
+      "PartId": "fin_r",
+      "Color": 3,
+      "Position": [
+        0.95,
+        -0.08,
+        0.07
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L07-s30",
+      "PartId": "engine",
+      "Color": 3,
+      "Position": [
+        -0.517,
+        -0.75,
+        0.188
+      ],
+      "Normal": [
+        -0.9397,
+        0,
+        0.342
+      ]
+    },
+    {
+      "Id": "L07-s31",
+      "PartId": "engine",
+      "Color": 5,
+      "Position": [
+        0.0,
+        -0.75,
+        0.55
+      ],
+      "Normal": [
+        0.0,
+        0,
+        1.0
+      ]
+    },
+    {
+      "Id": "L07-s32",
+      "PartId": "engine",
+      "Color": 3,
+      "Position": [
+        0.517,
+        -0.75,
+        0.188
+      ],
+      "Normal": [
+        0.9397,
+        0,
+        0.342
       ]
     }
   ],
   "Camera": {
     "MinYaw": -180,
     "MaxYaw": 180,
-    "MinPitch": 15,
-    "MaxPitch": 75,
+    "MinPitch": 5,
+    "MaxPitch": 70,
     "Distance": 9
   },
   "Meta": {
-    "IntroducedSkill": "watch the queue",
+    "IntroducedSkill": "watch the box queue",
     "DifficultyHypothesis": 3,
-    "LayoutId": "shed-layout",
+    "LayoutId": "rocket-layout",
     "ReviewStatus": "unreviewed"
   }
 }

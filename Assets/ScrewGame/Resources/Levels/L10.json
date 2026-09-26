@@ -1,145 +1,38 @@
 {
   "SchemaVersion": 1,
   "Id": "L10",
-  "ContentVersion": 1,
-  "Name": "Clock Tower",
-  "ObjectId": "clocktower",
-  "Family": "buildings",
-  "TrayPositions": 2,
+  "ContentVersion": 2,
+  "Name": "Castle",
+  "ObjectId": "castle",
+  "Family": "houses",
+  "TrayPositions": 4,
   "TrayCapacity": 3,
   "BufferSlots": 5,
   "TrayQueue": [
-    0,
     7,
-    3,
-    1,
     2,
+    6,
+    4,
     0,
+    6,
+    5,
+    6,
+    4,
+    1,
+    4,
     7,
-    3,
     1,
     2
   ],
   "Parts": [
     {
-      "Id": "spire",
+      "Id": "flag",
       "Blockers": [],
       "Shape": "box",
       "Position": [
         0,
-        2.5,
+        2.75,
         0
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        0.8,
-        0.6,
-        0.8
-      ],
-      "Material": 6
-    },
-    {
-      "Id": "clock_f",
-      "Blockers": [
-        "spire"
-      ],
-      "Shape": "box",
-      "Position": [
-        0,
-        1.6,
-        0.6
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        1.3,
-        1.3,
-        0.1
-      ],
-      "Material": 7
-    },
-    {
-      "Id": "clock_b",
-      "Blockers": [
-        "spire"
-      ],
-      "Shape": "box",
-      "Position": [
-        0,
-        1.6,
-        -0.6
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        1.3,
-        1.3,
-        0.1
-      ],
-      "Material": 7
-    },
-    {
-      "Id": "side_l",
-      "Blockers": [],
-      "Shape": "box",
-      "Position": [
-        -0.75,
-        0.6,
-        0
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        0.1,
-        2.0,
-        1.2
-      ],
-      "Material": 1
-    },
-    {
-      "Id": "side_r",
-      "Blockers": [],
-      "Shape": "box",
-      "Position": [
-        0.75,
-        0.6,
-        0
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        0.1,
-        2.0,
-        1.2
-      ],
-      "Material": 1
-    },
-    {
-      "Id": "door",
-      "Blockers": [
-        "clock_f"
-      ],
-      "Shape": "box",
-      "Position": [
-        0,
-        0.1,
-        0.65
       ],
       "Rotation": [
         0,
@@ -148,21 +41,62 @@
       ],
       "Size": [
         0.7,
-        1.0,
-        0.1
+        0.4,
+        0.08
       ],
-      "Material": 3
+      "Material": 8
     },
     {
-      "Id": "base",
+      "Id": "tower_l",
+      "Blockers": [],
+      "Shape": "cylinder",
+      "Position": [
+        -1.6,
+        0.75,
+        0.15
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.0,
+        2.4,
+        1.0
+      ],
+      "Material": 4
+    },
+    {
+      "Id": "tower_r",
+      "Blockers": [],
+      "Shape": "cylinder",
+      "Position": [
+        1.6,
+        0.75,
+        0.15
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.0,
+        2.4,
+        1.0
+      ],
+      "Material": 4
+    },
+    {
+      "Id": "keep_top",
       "Blockers": [
-        "door",
-        "clock_b"
+        "flag"
       ],
       "Shape": "box",
       "Position": [
         0,
-        -0.6,
+        2.2,
         0
       ],
       "Rotation": [
@@ -171,22 +105,92 @@
         0
       ],
       "Size": [
-        2.4,
-        0.4,
-        2.0
+        1.4,
+        0.7,
+        1.2
       ],
-      "Material": 0
+      "Material": 4
+    },
+    {
+      "Id": "gate",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.0,
+        0.83
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.9,
+        1.1,
+        0.1
+      ],
+      "Material": 9
+    },
+    {
+      "Id": "keep",
+      "Blockers": [
+        "keep_top",
+        "gate",
+        "tower_l",
+        "tower_r"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.7,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.3,
+        2.2,
+        1.5
+      ],
+      "Material": 7
+    },
+    {
+      "Id": "moat",
+      "Blockers": [
+        "keep"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.65,
+        0.35
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        4.0,
+        0.25,
+        2.8
+      ],
+      "Material": 1
     }
   ],
   "Screws": [
     {
       "Id": "L10-s00",
-      "PartId": "spire",
-      "Color": 7,
+      "PartId": "flag",
+      "Color": 6,
       "Position": [
-        -0.1,
-        2.5,
-        0.4
+        -0.07,
+        2.75,
+        0.04
       ],
       "Normal": [
         0,
@@ -196,12 +200,12 @@
     },
     {
       "Id": "L10-s01",
-      "PartId": "spire",
-      "Color": 0,
+      "PartId": "flag",
+      "Color": 2,
       "Position": [
-        0.0,
-        2.5,
-        0.4
+        0.07,
+        2.75,
+        0.04
       ],
       "Normal": [
         0,
@@ -211,297 +215,297 @@
     },
     {
       "Id": "L10-s02",
-      "PartId": "spire",
-      "Color": 3,
+      "PartId": "tower_l",
+      "Color": 4,
       "Position": [
-        0.1,
-        2.5,
-        0.4
+        -2.07,
+        0.75,
+        0.321
       ],
       "Normal": [
+        -0.9397,
         0,
-        0,
-        1
+        0.342
       ]
     },
     {
       "Id": "L10-s03",
-      "PartId": "clock_f",
-      "Color": 1,
+      "PartId": "tower_l",
+      "Color": 6,
       "Position": [
-        -0.35,
-        1.25,
-        0.65
+        -1.798,
+        0.75,
+        0.609
       ],
       "Normal": [
+        -0.3961,
         0,
-        0,
-        1
+        0.9182
       ]
     },
     {
       "Id": "L10-s04",
-      "PartId": "clock_f",
-      "Color": 7,
+      "PartId": "tower_l",
+      "Color": 2,
       "Position": [
-        0.35,
-        1.25,
-        0.65
+        -1.402,
+        0.75,
+        0.609
       ],
       "Normal": [
+        0.3961,
         0,
-        0,
-        1
+        0.9182
       ]
     },
     {
       "Id": "L10-s05",
-      "PartId": "clock_f",
-      "Color": 2,
+      "PartId": "tower_l",
+      "Color": 6,
       "Position": [
-        -0.35,
-        1.95,
-        0.65
+        -1.13,
+        0.75,
+        0.321
       ],
       "Normal": [
+        0.9397,
         0,
-        0,
-        1
+        0.342
       ]
     },
     {
       "Id": "L10-s06",
-      "PartId": "clock_f",
-      "Color": 0,
-      "Position": [
-        0.35,
-        1.95,
-        0.65
-      ],
-      "Normal": [
-        0,
-        0,
-        1
-      ]
-    },
-    {
-      "Id": "L10-s07",
-      "PartId": "clock_b",
-      "Color": 3,
-      "Position": [
-        -0.35,
-        1.25,
-        -0.65
-      ],
-      "Normal": [
-        0,
-        0,
-        -1
-      ]
-    },
-    {
-      "Id": "L10-s08",
-      "PartId": "clock_b",
-      "Color": 2,
-      "Position": [
-        0.35,
-        1.25,
-        -0.65
-      ],
-      "Normal": [
-        0,
-        0,
-        -1
-      ]
-    },
-    {
-      "Id": "L10-s09",
-      "PartId": "clock_b",
+      "PartId": "tower_l",
       "Color": 7,
       "Position": [
-        -0.35,
+        -1.29,
         1.95,
-        -0.65
+        0.15
       ],
       "Normal": [
         0,
-        0,
-        -1
-      ]
-    },
-    {
-      "Id": "L10-s10",
-      "PartId": "clock_b",
-      "Color": 1,
-      "Position": [
-        0.35,
-        1.95,
-        -0.65
-      ],
-      "Normal": [
-        0,
-        0,
-        -1
-      ]
-    },
-    {
-      "Id": "L10-s11",
-      "PartId": "side_l",
-      "Color": 0,
-      "Position": [
-        -0.8,
-        -0.1,
-        -0.3
-      ],
-      "Normal": [
-        -1,
-        0,
+        1,
         0
       ]
     },
     {
-      "Id": "L10-s12",
-      "PartId": "side_l",
-      "Color": 1,
+      "Id": "L10-s07",
+      "PartId": "tower_l",
+      "Color": 4,
       "Position": [
-        -0.8,
-        0.6,
-        -0.3
+        -1.91,
+        1.95,
+        0.15
       ],
       "Normal": [
-        -1,
         0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s08",
+      "PartId": "tower_r",
+      "Color": 0,
+      "Position": [
+        1.13,
+        0.75,
+        0.321
+      ],
+      "Normal": [
+        -0.9397,
+        0,
+        0.342
+      ]
+    },
+    {
+      "Id": "L10-s09",
+      "PartId": "tower_r",
+      "Color": 0,
+      "Position": [
+        1.402,
+        0.75,
+        0.609
+      ],
+      "Normal": [
+        -0.3961,
+        0,
+        0.9182
+      ]
+    },
+    {
+      "Id": "L10-s10",
+      "PartId": "tower_r",
+      "Color": 2,
+      "Position": [
+        1.798,
+        0.75,
+        0.609
+      ],
+      "Normal": [
+        0.3961,
+        0,
+        0.9182
+      ]
+    },
+    {
+      "Id": "L10-s11",
+      "PartId": "tower_r",
+      "Color": 6,
+      "Position": [
+        2.07,
+        0.75,
+        0.321
+      ],
+      "Normal": [
+        0.9397,
+        0,
+        0.342
+      ]
+    },
+    {
+      "Id": "L10-s12",
+      "PartId": "tower_r",
+      "Color": 4,
+      "Position": [
+        1.91,
+        1.95,
+        0.15
+      ],
+      "Normal": [
+        0,
+        1,
         0
       ]
     },
     {
       "Id": "L10-s13",
-      "PartId": "side_l",
-      "Color": 2,
+      "PartId": "tower_r",
+      "Color": 6,
       "Position": [
-        -0.8,
-        1.3,
-        -0.3
+        1.29,
+        1.95,
+        0.15
       ],
       "Normal": [
-        -1,
         0,
+        1,
         0
       ]
     },
     {
       "Id": "L10-s14",
-      "PartId": "side_l",
-      "Color": 7,
+      "PartId": "keep_top",
+      "Color": 6,
       "Position": [
-        -0.8,
-        -0.1,
-        0.3
+        -0.42,
+        2.2,
+        0.6
       ],
       "Normal": [
-        -1,
         0,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s15",
-      "PartId": "side_l",
-      "Color": 3,
+      "PartId": "keep_top",
+      "Color": 0,
       "Position": [
-        -0.8,
-        1.3,
-        0.3
+        0.0,
+        2.2,
+        0.6
       ],
       "Normal": [
-        -1,
         0,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s16",
-      "PartId": "side_r",
-      "Color": 3,
+      "PartId": "keep_top",
+      "Color": 1,
       "Position": [
-        0.8,
-        -0.1,
-        -0.3
+        0.42,
+        2.2,
+        0.6
       ],
       "Normal": [
-        1,
         0,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s17",
-      "PartId": "side_r",
-      "Color": 0,
+      "PartId": "keep_top",
+      "Color": 4,
       "Position": [
-        0.8,
-        0.6,
-        -0.3
+        -0.42,
+        2.55,
+        0.0
       ],
       "Normal": [
-        1,
         0,
+        1,
         0
       ]
     },
     {
       "Id": "L10-s18",
-      "PartId": "side_r",
-      "Color": 7,
+      "PartId": "keep_top",
+      "Color": 1,
       "Position": [
-        0.8,
-        1.3,
-        -0.3
+        0.42,
+        2.55,
+        0.0
       ],
       "Normal": [
-        1,
         0,
+        1,
         0
       ]
     },
     {
       "Id": "L10-s19",
-      "PartId": "side_r",
-      "Color": 1,
+      "PartId": "gate",
+      "Color": 6,
       "Position": [
-        0.8,
-        -0.1,
-        0.3
+        -0.17,
+        -0.27,
+        0.88
       ],
       "Normal": [
-        1,
         0,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s20",
-      "PartId": "side_r",
-      "Color": 2,
+      "PartId": "gate",
+      "Color": 4,
       "Position": [
-        0.8,
-        1.3,
-        0.3
+        0.17,
+        -0.27,
+        0.88
       ],
       "Normal": [
-        1,
         0,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s21",
-      "PartId": "door",
+      "PartId": "gate",
       "Color": 2,
       "Position": [
         0.0,
-        -0.1,
-        0.7
+        0.27,
+        0.88
       ],
       "Normal": [
         0,
@@ -511,12 +515,12 @@
     },
     {
       "Id": "L10-s22",
-      "PartId": "door",
-      "Color": 3,
+      "PartId": "keep",
+      "Color": 7,
       "Position": [
-        0.0,
-        0.1,
-        0.7
+        -0.87,
+        -0.12,
+        0.75
       ],
       "Normal": [
         0,
@@ -526,12 +530,12 @@
     },
     {
       "Id": "L10-s23",
-      "PartId": "door",
-      "Color": 1,
+      "PartId": "keep",
+      "Color": 5,
       "Position": [
         0.0,
-        0.3,
-        0.7
+        -0.12,
+        0.75
       ],
       "Normal": [
         0,
@@ -541,72 +545,147 @@
     },
     {
       "Id": "L10-s24",
-      "PartId": "base",
-      "Color": 0,
+      "PartId": "keep",
+      "Color": 5,
       "Position": [
-        -0.9,
-        -0.4,
-        -0.7
+        0.87,
+        -0.12,
+        0.75
       ],
       "Normal": [
         0,
-        1,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s25",
-      "PartId": "base",
+      "PartId": "keep",
       "Color": 7,
       "Position": [
-        0.0,
-        -0.4,
-        -0.7
+        -0.87,
+        0.7,
+        0.75
       ],
       "Normal": [
         0,
-        1,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s26",
-      "PartId": "base",
-      "Color": 1,
+      "PartId": "keep",
+      "Color": 6,
       "Position": [
-        0.9,
-        -0.4,
-        -0.7
+        0.0,
+        0.7,
+        0.75
       ],
       "Normal": [
         0,
-        1,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s27",
-      "PartId": "base",
-      "Color": 3,
+      "PartId": "keep",
+      "Color": 4,
       "Position": [
-        -0.9,
-        -0.4,
-        0.7
+        0.87,
+        0.7,
+        0.75
       ],
       "Normal": [
         0,
-        1,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L10-s28",
-      "PartId": "base",
-      "Color": 2,
+      "PartId": "keep",
+      "Color": 6,
       "Position": [
         0.0,
-        -0.4,
-        0.7
+        1.52,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s29",
+      "PartId": "keep",
+      "Color": 5,
+      "Position": [
+        1.15,
+        -0.12,
+        0.0
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s30",
+      "PartId": "keep",
+      "Color": 2,
+      "Position": [
+        1.15,
+        1.52,
+        0.0
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s31",
+      "PartId": "keep",
+      "Color": 1,
+      "Position": [
+        -1.15,
+        -0.12,
+        0.0
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s32",
+      "PartId": "keep",
+      "Color": 1,
+      "Position": [
+        -1.15,
+        1.52,
+        0.0
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s33",
+      "PartId": "moat",
+      "Color": 7,
+      "Position": [
+        -1.72,
+        -0.525,
+        -0.77
       ],
       "Normal": [
         0,
@@ -615,13 +694,118 @@
       ]
     },
     {
-      "Id": "L10-s29",
-      "PartId": "base",
-      "Color": 0,
+      "Id": "L10-s34",
+      "PartId": "moat",
+      "Color": 7,
       "Position": [
-        0.9,
-        -0.4,
-        0.7
+        0.0,
+        -0.525,
+        -0.77
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s35",
+      "PartId": "moat",
+      "Color": 4,
+      "Position": [
+        1.72,
+        -0.525,
+        -0.77
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s36",
+      "PartId": "moat",
+      "Color": 1,
+      "Position": [
+        -1.72,
+        -0.525,
+        0.35
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s37",
+      "PartId": "moat",
+      "Color": 1,
+      "Position": [
+        0.0,
+        -0.525,
+        0.35
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s38",
+      "PartId": "moat",
+      "Color": 4,
+      "Position": [
+        1.72,
+        -0.525,
+        0.35
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s39",
+      "PartId": "moat",
+      "Color": 4,
+      "Position": [
+        -1.72,
+        -0.525,
+        1.47
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s40",
+      "PartId": "moat",
+      "Color": 2,
+      "Position": [
+        0.0,
+        -0.525,
+        1.47
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s41",
+      "PartId": "moat",
+      "Color": 7,
+      "Position": [
+        1.72,
+        -0.525,
+        1.47
       ],
       "Normal": [
         0,
@@ -633,14 +817,14 @@
   "Camera": {
     "MinYaw": -180,
     "MaxYaw": 180,
-    "MinPitch": 15,
-    "MaxPitch": 75,
+    "MinPitch": 5,
+    "MaxPitch": 70,
     "Distance": 9
   },
   "Meta": {
     "IntroducedSkill": "full combination",
     "DifficultyHypothesis": 5,
-    "LayoutId": "clocktower-layout",
+    "LayoutId": "castle-layout",
     "ReviewStatus": "unreviewed"
   }
 }

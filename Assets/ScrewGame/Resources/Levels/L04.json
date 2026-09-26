@@ -1,28 +1,101 @@
 {
   "SchemaVersion": 1,
   "Id": "L04",
-  "ContentVersion": 1,
-  "Name": "Toy Car",
-  "ObjectId": "car",
-  "Family": "toys",
-  "TrayPositions": 2,
+  "ContentVersion": 2,
+  "Name": "Cottage",
+  "ObjectId": "cottage",
+  "Family": "houses",
+  "TrayPositions": 4,
   "TrayCapacity": 3,
   "BufferSlots": 5,
   "TrayQueue": [
     0,
-    2,
     1,
-    3
+    5,
+    3,
+    0,
+    5,
+    4,
+    5,
+    4,
+    0
   ],
   "Parts": [
     {
-      "Id": "roof",
+      "Id": "chimney",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0.9,
+        2.15,
+        -0.3
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.45,
+        0.8,
+        0.45
+      ],
+      "Material": 8
+    },
+    {
+      "Id": "roof_l",
+      "Blockers": [
+        "chimney"
+      ],
+      "Shape": "box",
+      "Position": [
+        -0.72,
+        1.55,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        32
+      ],
+      "Size": [
+        1.75,
+        0.18,
+        2.5
+      ],
+      "Material": 8
+    },
+    {
+      "Id": "roof_r",
+      "Blockers": [
+        "chimney"
+      ],
+      "Shape": "box",
+      "Position": [
+        0.72,
+        1.55,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        -32
+      ],
+      "Size": [
+        1.75,
+        0.18,
+        2.5
+      ],
+      "Material": 8
+    },
+    {
+      "Id": "door",
       "Blockers": [],
       "Shape": "box",
       "Position": [
         0,
-        1.0,
-        0
+        0.05,
+        1.12
       ],
       "Rotation": [
         0,
@@ -30,22 +103,20 @@
         0
       ],
       "Size": [
-        1.8,
-        0.2,
-        1.4
+        0.7,
+        1.1,
+        0.1
       ],
-      "Material": 3
+      "Material": 9
     },
     {
-      "Id": "cabin",
-      "Blockers": [
-        "roof"
-      ],
+      "Id": "window_l",
+      "Blockers": [],
       "Shape": "box",
       "Position": [
-        0,
+        -0.85,
         0.55,
-        0
+        1.12
       ],
       "Rotation": [
         0,
@@ -53,22 +124,20 @@
         0
       ],
       "Size": [
-        2.4,
+        0.55,
         0.5,
-        1.5
+        0.08
       ],
-      "Material": 4
+      "Material": 1
     },
     {
-      "Id": "hood",
-      "Blockers": [
-        "cabin"
-      ],
+      "Id": "window_r",
+      "Blockers": [],
       "Shape": "box",
       "Position": [
-        0,
-        0.2,
-        0
+        0.85,
+        0.55,
+        1.12
       ],
       "Rotation": [
         0,
@@ -76,120 +145,147 @@
         0
       ],
       "Size": [
-        3.8,
-        0.2,
-        1.6
+        0.55,
+        0.5,
+        0.08
       ],
-      "Material": 5
+      "Material": 1
     },
     {
-      "Id": "chassis",
+      "Id": "walls",
       "Blockers": [
-        "hood"
+        "roof_l",
+        "roof_r",
+        "door",
+        "window_l",
+        "window_r"
       ],
       "Shape": "box",
       "Position": [
         0,
-        -0.15,
-        0
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        4,
         0.3,
-        1.8
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.6,
+        1.6,
+        2.2
       ],
       "Material": 0
+    },
+    {
+      "Id": "lawn",
+      "Blockers": [
+        "walls"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.6,
+        0.3
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        3.4,
+        0.2,
+        3.0
+      ],
+      "Material": 2
     }
   ],
   "Screws": [
     {
       "Id": "L04-s00",
-      "PartId": "roof",
-      "Color": 1,
+      "PartId": "chimney",
+      "Color": 5,
       "Position": [
-        -0.6,
-        1.1,
-        0.0
+        0.9,
+        2.15,
+        -0.075
       ],
       "Normal": [
         0,
-        1,
-        0
+        0,
+        1
       ]
     },
     {
       "Id": "L04-s01",
-      "PartId": "roof",
-      "Color": 2,
+      "PartId": "chimney",
+      "Color": 0,
       "Position": [
-        0.6,
-        1.1,
-        0.0
+        1.125,
+        2.15,
+        -0.3
       ],
       "Normal": [
-        0,
         1,
+        0,
         0
       ]
     },
     {
       "Id": "L04-s02",
-      "PartId": "cabin",
-      "Color": 0,
+      "PartId": "chimney",
+      "Color": 3,
       "Position": [
-        -0.9,
-        0.55,
-        0.75
+        0.9,
+        2.55,
+        -0.3
       ],
       "Normal": [
         0,
-        0,
-        1
+        1,
+        0
       ]
     },
     {
       "Id": "L04-s03",
-      "PartId": "cabin",
+      "PartId": "roof_l",
       "Color": 3,
       "Position": [
-        0.0,
-        0.55,
-        0.75
+        -1.315,
+        1.64,
+        -0.97
       ],
       "Normal": [
         0,
-        0,
-        1
+        1,
+        0
       ]
     },
     {
       "Id": "L04-s04",
-      "PartId": "cabin",
-      "Color": 2,
+      "PartId": "roof_l",
+      "Color": 4,
       "Position": [
-        0.9,
-        0.55,
-        0.75
+        -0.125,
+        1.64,
+        -0.97
       ],
       "Normal": [
         0,
-        0,
-        1
+        1,
+        0
       ]
     },
     {
       "Id": "L04-s05",
-      "PartId": "hood",
-      "Color": 0,
+      "PartId": "roof_l",
+      "Color": 1,
       "Position": [
-        -1.6,
-        0.3,
-        -0.5
+        -1.315,
+        1.64,
+        0.97
       ],
       "Normal": [
         0,
@@ -199,12 +295,12 @@
     },
     {
       "Id": "L04-s06",
-      "PartId": "hood",
-      "Color": 1,
+      "PartId": "roof_l",
+      "Color": 0,
       "Position": [
-        1.6,
-        0.3,
-        -0.5
+        -0.125,
+        1.64,
+        0.97
       ],
       "Normal": [
         0,
@@ -214,12 +310,12 @@
     },
     {
       "Id": "L04-s07",
-      "PartId": "hood",
-      "Color": 3,
+      "PartId": "roof_r",
+      "Color": 0,
       "Position": [
-        -1.6,
-        0.3,
-        0.5
+        0.125,
+        1.64,
+        -0.97
       ],
       "Normal": [
         0,
@@ -229,12 +325,12 @@
     },
     {
       "Id": "L04-s08",
-      "PartId": "hood",
+      "PartId": "roof_r",
       "Color": 0,
       "Position": [
-        1.6,
-        0.3,
-        0.5
+        1.315,
+        1.64,
+        -0.97
       ],
       "Normal": [
         0,
@@ -244,27 +340,42 @@
     },
     {
       "Id": "L04-s09",
-      "PartId": "chassis",
-      "Color": 2,
+      "PartId": "roof_r",
+      "Color": 3,
       "Position": [
-        -1.7,
-        -0.15,
-        0.9
+        0.125,
+        1.64,
+        0.97
       ],
       "Normal": [
         0,
-        0,
-        1
+        1,
+        0
       ]
     },
     {
       "Id": "L04-s10",
-      "PartId": "chassis",
-      "Color": 1,
+      "PartId": "roof_r",
+      "Color": 5,
+      "Position": [
+        1.315,
+        1.64,
+        0.97
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s11",
+      "PartId": "door",
+      "Color": 5,
       "Position": [
         0.0,
-        -0.15,
-        0.9
+        -0.22,
+        1.17
       ],
       "Normal": [
         0,
@@ -273,32 +384,287 @@
       ]
     },
     {
-      "Id": "L04-s11",
-      "PartId": "chassis",
-      "Color": 3,
+      "Id": "L04-s12",
+      "PartId": "door",
+      "Color": 4,
       "Position": [
-        1.7,
-        -0.15,
-        0.9
+        0.0,
+        0.32,
+        1.17
       ],
       "Normal": [
         0,
         0,
         1
+      ]
+    },
+    {
+      "Id": "L04-s13",
+      "PartId": "window_l",
+      "Color": 5,
+      "Position": [
+        -0.85,
+        0.55,
+        1.16
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s14",
+      "PartId": "window_r",
+      "Color": 5,
+      "Position": [
+        0.85,
+        0.55,
+        1.16
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s15",
+      "PartId": "walls",
+      "Color": 4,
+      "Position": [
+        -1.02,
+        -0.22,
+        1.1
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s16",
+      "PartId": "walls",
+      "Color": 5,
+      "Position": [
+        1.02,
+        -0.22,
+        1.1
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s17",
+      "PartId": "walls",
+      "Color": 0,
+      "Position": [
+        -1.02,
+        0.82,
+        1.1
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s18",
+      "PartId": "walls",
+      "Color": 4,
+      "Position": [
+        1.02,
+        0.82,
+        1.1
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s19",
+      "PartId": "walls",
+      "Color": 4,
+      "Position": [
+        1.3,
+        -0.22,
+        -0.82
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s20",
+      "PartId": "walls",
+      "Color": 4,
+      "Position": [
+        1.3,
+        -0.22,
+        0.82
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s21",
+      "PartId": "walls",
+      "Color": 5,
+      "Position": [
+        1.3,
+        0.82,
+        -0.82
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s22",
+      "PartId": "walls",
+      "Color": 1,
+      "Position": [
+        1.3,
+        0.82,
+        0.82
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s23",
+      "PartId": "walls",
+      "Color": 1,
+      "Position": [
+        -1.3,
+        0.3,
+        -0.82
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s24",
+      "PartId": "walls",
+      "Color": 5,
+      "Position": [
+        -1.3,
+        0.3,
+        0.82
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s25",
+      "PartId": "lawn",
+      "Color": 0,
+      "Position": [
+        -1.42,
+        -0.5,
+        -0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s26",
+      "PartId": "lawn",
+      "Color": 0,
+      "Position": [
+        0.0,
+        -0.5,
+        -0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s27",
+      "PartId": "lawn",
+      "Color": 0,
+      "Position": [
+        1.42,
+        -0.5,
+        -0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s28",
+      "PartId": "lawn",
+      "Color": 0,
+      "Position": [
+        -1.42,
+        -0.5,
+        1.52
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s29",
+      "PartId": "lawn",
+      "Color": 5,
+      "Position": [
+        1.42,
+        -0.5,
+        1.52
+      ],
+      "Normal": [
+        0,
+        1,
+        0
       ]
     }
   ],
   "Camera": {
     "MinYaw": -180,
     "MaxYaw": 180,
-    "MinPitch": 15,
-    "MaxPitch": 75,
+    "MinPitch": 5,
+    "MaxPitch": 70,
     "Distance": 9
   },
   "Meta": {
     "IntroducedSkill": "layered blockers",
     "DifficultyHypothesis": 2,
-    "LayoutId": "car-layout",
+    "LayoutId": "cottage-layout",
     "ReviewStatus": "unreviewed"
   }
 }

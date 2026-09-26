@@ -163,7 +163,7 @@ namespace ScrewGame.Tests
             Assert.AreEqual(Outcome.Won, s.Engine.Outcome);
             Assert.IsTrue(s.Attempt.Closed);
             Assert.IsTrue(camp.IsUnlocked(s.Profile, "L02"));
-            CollectionAssert.Contains(s.Profile.Progress.CollectedObjects, "plank");
+            CollectionAssert.Contains(s.Profile.Progress.CollectedObjects, level.Definition.ObjectId);
             Assert.AreEqual(RejectReason.AttemptClosed, s.Undo(s.Engine.Revision).Reason);
 
             // Replay the same level: second victory does not duplicate progression.
@@ -222,7 +222,7 @@ namespace ScrewGame.Tests
             s.Start(level);
             s.Remove(Witness(level)[0], 0);
             var edited = SampleContent.Load("L02");
-            edited.ContentVersion = 2;
+            edited.ContentVersion = level.Definition.ContentVersion + 1;
             var (s2, _, _) = NewSession(disk);
             Assert.AreEqual(StartKind.ReplacedIncompatible, s2.Start(CompiledLevel.Compile(edited)));
             Assert.AreEqual(0, s2.Engine.Revision);

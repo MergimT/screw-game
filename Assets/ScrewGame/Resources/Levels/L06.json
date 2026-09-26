@@ -1,29 +1,57 @@
 {
   "SchemaVersion": 1,
   "Id": "L06",
-  "ContentVersion": 1,
-  "Name": "Robot Friend",
-  "ObjectId": "robot",
-  "Family": "toys",
-  "TrayPositions": 2,
+  "ContentVersion": 2,
+  "Name": "Flower Pot",
+  "ObjectId": "flower",
+  "Family": "garden",
+  "TrayPositions": 4,
   "TrayCapacity": 3,
   "BufferSlots": 5,
   "TrayQueue": [
-    3,
+    5,
+    4,
+    2,
     0,
     1,
+    5,
+    1,
     2,
-    3,
-    0
+    5,
+    0,
+    5
   ],
   "Parts": [
     {
-      "Id": "head",
+      "Id": "heart",
       "Blockers": [],
-      "Shape": "box",
+      "Shape": "sphere",
       "Position": [
         0,
-        1.6,
+        2.1,
+        0.15
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.7,
+        0.7,
+        0.7
+      ],
+      "Material": 5
+    },
+    {
+      "Id": "petal_n",
+      "Blockers": [
+        "heart"
+      ],
+      "Shape": "sphere",
+      "Position": [
+        0,
+        2.7,
         0
       ],
       "Rotation": [
@@ -32,21 +60,180 @@
         0
       ],
       "Size": [
-        1.2,
         0.8,
-        1.0
+        0.8,
+        0.8
+      ],
+      "Material": 3
+    },
+    {
+      "Id": "petal_e",
+      "Blockers": [
+        "heart"
+      ],
+      "Shape": "sphere",
+      "Position": [
+        0.6,
+        2.1,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "Material": 3
+    },
+    {
+      "Id": "petal_w",
+      "Blockers": [
+        "heart"
+      ],
+      "Shape": "sphere",
+      "Position": [
+        -0.6,
+        2.1,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "Material": 3
+    },
+    {
+      "Id": "petal_s",
+      "Blockers": [
+        "heart"
+      ],
+      "Shape": "sphere",
+      "Position": [
+        0,
+        1.5,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.8,
+        0.8,
+        0.8
+      ],
+      "Material": 3
+    },
+    {
+      "Id": "leaf_l",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        -0.6,
+        0.85,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        25
+      ],
+      "Size": [
+        0.9,
+        0.12,
+        0.5
+      ],
+      "Material": 2
+    },
+    {
+      "Id": "leaf_r",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0.6,
+        0.85,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        -25
+      ],
+      "Size": [
+        0.9,
+        0.12,
+        0.5
+      ],
+      "Material": 2
+    },
+    {
+      "Id": "stem",
+      "Blockers": [
+        "petal_s",
+        "leaf_l",
+        "leaf_r"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.8,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.22,
+        1.4,
+        0.22
+      ],
+      "Material": 2
+    },
+    {
+      "Id": "pot",
+      "Blockers": [
+        "stem"
+      ],
+      "Shape": "cylinder",
+      "Position": [
+        0,
+        -0.35,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.0,
+        1.1,
+        2.0
       ],
       "Material": 6
     },
     {
-      "Id": "chest",
+      "Id": "saucer",
       "Blockers": [
-        "head"
+        "pot"
       ],
       "Shape": "box",
       "Position": [
         0,
-        0.6,
+        -1.0,
         0
       ],
       "Rotation": [
@@ -55,334 +242,247 @@
         0
       ],
       "Size": [
-        2.0,
-        1.1,
-        0.4
+        2.4,
+        0.2,
+        2.4
       ],
-      "Material": 4
-    },
-    {
-      "Id": "arm_l",
-      "Blockers": [],
-      "Shape": "box",
-      "Position": [
-        -1.3,
-        0.6,
-        0
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        0.4,
-        1.0,
-        0.4
-      ],
-      "Material": 5
-    },
-    {
-      "Id": "arm_r",
-      "Blockers": [],
-      "Shape": "box",
-      "Position": [
-        1.3,
-        0.6,
-        0
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        0.4,
-        1.0,
-        0.4
-      ],
-      "Material": 5
-    },
-    {
-      "Id": "back",
-      "Blockers": [],
-      "Shape": "box",
-      "Position": [
-        0,
-        0.6,
-        -0.3
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        2.0,
-        1.1,
-        0.2
-      ],
-      "Material": 1
-    },
-    {
-      "Id": "hips",
-      "Blockers": [
-        "chest",
-        "back"
-      ],
-      "Shape": "box",
-      "Position": [
-        0,
-        -0.3,
-        0
-      ],
-      "Rotation": [
-        0,
-        0,
-        0
-      ],
-      "Size": [
-        1.8,
-        0.5,
-        0.8
-      ],
-      "Material": 0
+      "Material": 9
     }
   ],
   "Screws": [
     {
       "Id": "L06-s00",
-      "PartId": "head",
-      "Color": 2,
+      "PartId": "heart",
+      "Color": 0,
       "Position": [
-        -0.3,
-        1.6,
-        0.5
+        0.139,
+        2.1,
+        0.471
       ],
       "Normal": [
-        0,
-        0,
-        1
+        0.3961,
+        0.0,
+        0.9182
       ]
     },
     {
       "Id": "L06-s01",
-      "PartId": "head",
-      "Color": 1,
+      "PartId": "heart",
+      "Color": 2,
       "Position": [
-        0.3,
-        1.6,
-        0.5
+        -0.167,
+        2.253,
+        0.416
       ],
       "Normal": [
-        0,
-        0,
-        1
+        -0.478,
+        0.4379,
+        0.7614
       ]
     },
     {
       "Id": "L06-s02",
-      "PartId": "chest",
-      "Color": 3,
+      "PartId": "heart",
+      "Color": 1,
       "Position": [
-        -0.7,
-        0.35,
-        0.2
+        0.024,
+        1.825,
+        0.365
       ],
       "Normal": [
-        0,
-        0,
-        1
+        0.069,
+        -0.7868,
+        0.6133
       ]
     },
     {
       "Id": "L06-s03",
-      "PartId": "chest",
-      "Color": 0,
+      "PartId": "petal_n",
+      "Color": 5,
       "Position": [
-        0.7,
-        0.35,
-        0.2
+        0.191,
+        2.7,
+        0.351
       ],
       "Normal": [
-        0,
-        0,
-        1
+        0.4783,
+        0.0,
+        0.8782
       ]
     },
     {
       "Id": "L06-s04",
-      "PartId": "chest",
-      "Color": 3,
+      "PartId": "petal_n",
+      "Color": 5,
       "Position": [
-        -0.7,
-        0.85,
-        0.2
+        -0.224,
+        2.905,
+        0.26
       ],
       "Normal": [
-        0,
-        0,
-        1
+        -0.5607,
+        0.5136,
+        0.6495
       ]
     },
     {
       "Id": "L06-s05",
-      "PartId": "chest",
-      "Color": 1,
+      "PartId": "petal_e",
+      "Color": 2,
       "Position": [
-        0.7,
-        0.85,
-        0.2
+        0.791,
+        2.1,
+        0.351
       ],
       "Normal": [
-        0,
-        0,
-        1
+        0.4783,
+        0.0,
+        0.8782
       ]
     },
     {
       "Id": "L06-s06",
-      "PartId": "arm_l",
-      "Color": 0,
+      "PartId": "petal_e",
+      "Color": 1,
       "Position": [
-        -1.5,
-        0.4,
-        0.0
+        0.376,
+        2.305,
+        0.26
       ],
       "Normal": [
-        -1,
-        0,
-        0
+        -0.5607,
+        0.5136,
+        0.6495
       ]
     },
     {
       "Id": "L06-s07",
-      "PartId": "arm_l",
-      "Color": 2,
+      "PartId": "petal_w",
+      "Color": 4,
       "Position": [
-        -1.5,
-        0.8,
-        0.0
+        -0.409,
+        2.1,
+        0.351
       ],
       "Normal": [
-        -1,
-        0,
-        0
+        0.4783,
+        0.0,
+        0.8782
       ]
     },
     {
       "Id": "L06-s08",
-      "PartId": "arm_r",
-      "Color": 3,
+      "PartId": "petal_w",
+      "Color": 2,
       "Position": [
-        1.5,
-        0.4,
-        0.0
+        -0.824,
+        2.305,
+        0.26
       ],
       "Normal": [
-        1,
-        0,
-        0
+        -0.5607,
+        0.5136,
+        0.6495
       ]
     },
     {
       "Id": "L06-s09",
-      "PartId": "arm_r",
+      "PartId": "petal_s",
       "Color": 1,
       "Position": [
+        0.191,
         1.5,
-        0.8,
-        0.0
+        0.351
       ],
       "Normal": [
-        1,
-        0,
-        0
+        0.4783,
+        0.0,
+        0.8782
       ]
     },
     {
       "Id": "L06-s10",
-      "PartId": "back",
-      "Color": 0,
+      "PartId": "petal_s",
+      "Color": 5,
       "Position": [
-        -0.7,
-        0.6,
-        -0.4
+        -0.224,
+        1.705,
+        0.26
       ],
       "Normal": [
-        0,
-        0,
-        -1
+        -0.5607,
+        0.5136,
+        0.6495
       ]
     },
     {
       "Id": "L06-s11",
-      "PartId": "back",
-      "Color": 0,
+      "PartId": "leaf_l",
+      "Color": 4,
       "Position": [
-        0.0,
-        0.6,
-        -0.4
+        -0.77,
+        0.91,
+        0.0
       ],
       "Normal": [
         0,
-        0,
-        -1
+        1,
+        0
       ]
     },
     {
       "Id": "L06-s12",
-      "PartId": "back",
-      "Color": 3,
+      "PartId": "leaf_l",
+      "Color": 0,
       "Position": [
-        0.7,
-        0.6,
-        -0.4
+        -0.43,
+        0.91,
+        0.0
       ],
       "Normal": [
         0,
-        0,
-        -1
+        1,
+        0
       ]
     },
     {
       "Id": "L06-s13",
-      "PartId": "hips",
+      "PartId": "leaf_r",
       "Color": 0,
       "Position": [
-        -0.6,
-        -0.3,
-        0.4
+        0.43,
+        0.91,
+        0.0
       ],
       "Normal": [
         0,
-        0,
-        1
+        1,
+        0
       ]
     },
     {
       "Id": "L06-s14",
-      "PartId": "hips",
-      "Color": 3,
+      "PartId": "leaf_r",
+      "Color": 4,
       "Position": [
-        -0.3,
-        -0.3,
-        0.4
+        0.77,
+        0.91,
+        0.0
       ],
       "Normal": [
         0,
-        0,
-        1
+        1,
+        0
       ]
     },
     {
       "Id": "L06-s15",
-      "PartId": "hips",
-      "Color": 0,
+      "PartId": "stem",
+      "Color": 1,
       "Position": [
         0.0,
-        -0.3,
-        0.4
+        0.38,
+        0.11
       ],
       "Normal": [
         0,
@@ -392,12 +492,12 @@
     },
     {
       "Id": "L06-s16",
-      "PartId": "hips",
-      "Color": 2,
+      "PartId": "stem",
+      "Color": 5,
       "Position": [
-        0.3,
-        -0.3,
-        0.4
+        0.0,
+        0.8,
+        0.11
       ],
       "Normal": [
         0,
@@ -407,31 +507,256 @@
     },
     {
       "Id": "L06-s17",
-      "PartId": "hips",
-      "Color": 3,
+      "PartId": "stem",
+      "Color": 2,
       "Position": [
-        0.6,
-        -0.3,
-        0.4
+        0.0,
+        1.22,
+        0.11
       ],
       "Normal": [
         0,
         0,
         1
       ]
+    },
+    {
+      "Id": "L06-s18",
+      "PartId": "pot",
+      "Color": 0,
+      "Position": [
+        -0.94,
+        -0.35,
+        0.342
+      ],
+      "Normal": [
+        -0.9397,
+        0,
+        0.342
+      ]
+    },
+    {
+      "Id": "L06-s19",
+      "PartId": "pot",
+      "Color": 5,
+      "Position": [
+        -0.669,
+        -0.35,
+        0.743
+      ],
+      "Normal": [
+        -0.6691,
+        0,
+        0.7431
+      ]
+    },
+    {
+      "Id": "L06-s20",
+      "PartId": "pot",
+      "Color": 0,
+      "Position": [
+        -0.242,
+        -0.35,
+        0.97
+      ],
+      "Normal": [
+        -0.2419,
+        0,
+        0.9703
+      ]
+    },
+    {
+      "Id": "L06-s21",
+      "PartId": "pot",
+      "Color": 1,
+      "Position": [
+        0.242,
+        -0.35,
+        0.97
+      ],
+      "Normal": [
+        0.2419,
+        0,
+        0.9703
+      ]
+    },
+    {
+      "Id": "L06-s22",
+      "PartId": "pot",
+      "Color": 5,
+      "Position": [
+        0.669,
+        -0.35,
+        0.743
+      ],
+      "Normal": [
+        0.6691,
+        0,
+        0.7431
+      ]
+    },
+    {
+      "Id": "L06-s23",
+      "PartId": "pot",
+      "Color": 0,
+      "Position": [
+        0.94,
+        -0.35,
+        0.342
+      ],
+      "Normal": [
+        0.9397,
+        0,
+        0.342
+      ]
+    },
+    {
+      "Id": "L06-s24",
+      "PartId": "pot",
+      "Color": 2,
+      "Position": [
+        0.62,
+        0.2,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s25",
+      "PartId": "pot",
+      "Color": 5,
+      "Position": [
+        -0.31,
+        0.2,
+        0.537
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s26",
+      "PartId": "pot",
+      "Color": 1,
+      "Position": [
+        -0.31,
+        0.2,
+        -0.537
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s27",
+      "PartId": "saucer",
+      "Color": 5,
+      "Position": [
+        -0.92,
+        -0.9,
+        -0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s28",
+      "PartId": "saucer",
+      "Color": 2,
+      "Position": [
+        0.0,
+        -0.9,
+        -0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s29",
+      "PartId": "saucer",
+      "Color": 5,
+      "Position": [
+        0.92,
+        -0.9,
+        -0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s30",
+      "PartId": "saucer",
+      "Color": 5,
+      "Position": [
+        -0.92,
+        -0.9,
+        0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s31",
+      "PartId": "saucer",
+      "Color": 5,
+      "Position": [
+        0.0,
+        -0.9,
+        0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s32",
+      "PartId": "saucer",
+      "Color": 5,
+      "Position": [
+        0.92,
+        -0.9,
+        0.92
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
     }
   ],
   "Camera": {
     "MinYaw": -180,
     "MaxYaw": 180,
-    "MinPitch": 15,
-    "MaxPitch": 75,
+    "MinPitch": 5,
+    "MaxPitch": 70,
     "Distance": 9
   },
   "Meta": {
-    "IntroducedSkill": "combine buffer and blockers",
+    "IntroducedSkill": "combine slots and blockers",
     "DifficultyHypothesis": 3,
-    "LayoutId": "robot-layout",
+    "LayoutId": "flower-layout",
     "ReviewStatus": "unreviewed"
   }
 }

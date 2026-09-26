@@ -25,8 +25,8 @@ namespace ScrewGame.Presentation
             _range = range ?? new CameraRange();
             Target = bounds.center;
             Radius = Mathf.Max(0.5f, bounds.extents.magnitude);
-            Yaw = Mathf.Clamp(20f, _range.MinYaw, _range.MaxYaw);
-            Pitch = Mathf.Clamp(35f, _range.MinPitch, _range.MaxPitch);
+            Yaw = Mathf.Clamp(-152f, _range.MinYaw, _range.MaxYaw);
+            Pitch = Mathf.Clamp(24f, _range.MinPitch, _range.MaxPitch);
             Apply();
         }
 
@@ -45,8 +45,8 @@ namespace ScrewGame.Presentation
             float aspect = Mathf.Max(0.2f, Camera.aspect);
             float tanV = Mathf.Tan(Camera.fieldOfView * 0.5f * Mathf.Deg2Rad);
             float regionHalf = Mathf.Max(0.1f, RegionTop - RegionBottom);
-            float fit = Radius * 0.78f;
-            float distance = Mathf.Max(fit / (tanV * regionHalf), Radius * 0.95f / (tanV * aspect * 0.96f));
+            float fit = Radius * 0.64f;
+            float distance = Mathf.Max(fit / (tanV * regionHalf), Radius * 0.8f / (tanV * aspect * 0.96f));
             var rot = Quaternion.Euler(Pitch, Yaw, 0f);
             Camera.transform.position = Target + rot * new Vector3(0f, 0f, -distance);
             Camera.transform.rotation = rot;

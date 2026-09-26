@@ -24,13 +24,16 @@ namespace ScrewGame.Presentation
 
         public static readonly Color[] PartMaterial =
         {
-            Hex(0xffe0b2), Hex(0x8fd3fe), Hex(0xb5e48c), Hex(0xffafcc),
-            Hex(0xcdb4f6), Hex(0xffe066), Hex(0xf4a261), Hex(0xf1f3f5),
+            Hex(0xffe3b8), Hex(0x5ec8ff), Hex(0x72d65a), Hex(0xff8fc7),
+            Hex(0xb69cff), Hex(0xffd84d), Hex(0xff9f43), Hex(0xf7f9fc),
+            Hex(0xff5a5a), Hex(0xb9774a), Hex(0x3dd6c6), Hex(0x9aa7b4),
         };
 
         public static readonly Color Background = Hex(0x55bdf7);
         public static readonly Color BackgroundTop = Hex(0x2f95ee);
         public static readonly Color BackgroundBottom = Hex(0xb9ecff);
+        public static readonly Color Hill = Hex(0x8ed96b);
+        public static readonly Color HillFar = Hex(0xb5e89a);
         public static readonly Color Card = Hex(0x1f6fc4);
         public static readonly Color Ink = Color.white;
         public static readonly Color InkMuted = new Color(1f, 1f, 1f, 0.7f);
@@ -40,6 +43,7 @@ namespace ScrewGame.Presentation
         public static readonly Color Accent = Hex(0x8b5cf6);
         public static readonly Color Success = Hex(0x2f9e44);
         public static readonly Color Slot = Hex(0xd7e3ea);
+        public static readonly Color Socket = Hex(0x9fb0bd);
         public static readonly Color SlotInner = Hex(0x8aa2b3);
         public static readonly Color TrayFace = Hex(0xf5f7fa);
         public static readonly Color Hole = Hex(0x3a4750);
