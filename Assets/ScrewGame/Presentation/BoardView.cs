@@ -66,7 +66,8 @@ namespace ScrewGame.Presentation
                     : p.Shape == "sphere"
                         ? MeshKit.Sphere(size.x * 0.5f)
                         : MeshKit.RoundedBox(size, Mathf.Min(0.16f, minDim * 0.42f));
-                var go = MeshKit.Make("Part " + p.Id, mesh, Mat(color, 0.62f, 0f), _objectRoot);
+                var go = MeshKit.Make("Part " + p.Id, mesh, Mat(color, 0.8f, 0f), _objectRoot);
+                AddOutline(go, mesh, Color.Lerp(color, Palette.Outline, 0.62f), 0.05f);
                 go.transform.localPosition = V(p.Position);
                 go.transform.localEulerAngles = V(p.Rotation);
                 if (cylinder)
@@ -180,9 +181,20 @@ namespace ScrewGame.Presentation
             var boxMesh = MeshKit.RoundedBox(new Vector3(1.55f, 0.6f, 1.45f), 0.22f);
             var handleMesh = MeshKit.RoundedBox(new Vector3(0.62f, 0.34f, 0.3f), 0.1f);
             var faceMesh = MeshKit.RoundedBox(new Vector3(1.2f, 0.06f, 1.1f), 0.18f);
+            float shelfW = level.TrayPositions * TraySpacing + 0.35f;
+            var shelfMesh = MeshKit.RoundedBox(new Vector3(shelfW, 0.22f, 2.05f), 0.2f);
+            var shelf = MeshKit.Make("Shelf", shelfMesh, Mat(Palette.Shelf, 0.7f, 0f), _holdRoot, false);
+            shelf.transform.localPosition = new Vector3(0f, -0.42f, TrayRowZ + 0.05f);
+            AddOutline(shelf, shelfMesh, Palette.Outline, 0.05f);
+            float barW = level.BufferSlots * BufferSpacing + 0.3f;
+            var barMesh = MeshKit.RoundedBox(new Vector3(barW, 0.16f, 0.78f), 0.2f);
+            var bar = MeshKit.Make("BufferBar", barMesh, Mat(Palette.BufferBar, 0.7f, 0f), _holdRoot, false);
+            bar.transform.localPosition = new Vector3(0f, -0.24f, BufferRowZ);
+            AddOutline(bar, barMesh, Palette.Outline, 0.05f);
             for (int t = 0; t < level.TrayPositions; t++)
             {
-                var tray = MeshKit.Make("Tray " + t, boxMesh, Mat(Palette.Slot, 0.6f, 0f), _holdRoot);
+                var tray = MeshKit.Make("Tray " + t, boxMesh, Mat(Palette.Slot, 0.75f, 0f), _holdRoot);
+                AddOutline(tray, boxMesh, Palette.Outline, 0.045f);
                 tray.transform.localPosition = TrayHome(t);
                 var handle = MeshKit.Make("Handle", handleMesh, tray.GetComponent<Renderer>().sharedMaterial, tray.transform);
                 handle.transform.localPosition = new Vector3(0f, 0.12f, 0.78f);
@@ -346,7 +358,7 @@ namespace ScrewGame.Presentation
         {
             var c = color >= 0 ? Palette.ScrewColor(color) : Palette.Slot;
             c.a = 1f;
-            var m = Mat(c, 0.6f, 0f);
+            var m = Mat(c, 0.75f, 0f);
             _trayRenderers[t].sharedMaterial = m;
             _handleRenderers[t].sharedMaterial = m;
         }
@@ -499,6 +511,38 @@ namespace ScrewGame.Presentation
         private static float EaseBack(float k) => 1f + 2.7f * Mathf.Pow(k - 1f, 3f) + 1.7f * Mathf.Pow(k - 1f, 2f);
 
         private readonly Dictionary<string, Material> _mats = new Dictionary<string, Material>();
+
+        /// <summary>Inverted-hull cartoon outline: a slightly enlarged, front-culled, dark copy of the mesh.</summary>
+        private void AddOutline(GameObject go, Mesh mesh, Color color, float width)
+        {
+            var key = "outline" + ColorUtility.ToHtmlStringRGB(color);
+            if (!_mats.TryGetValue(key, out var m))
+            {
+                m = new Material(_litTemplate) { color = color };
+                if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", color);
+                if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", 0f);
+                if (m.HasProperty("_Cull")) m.SetFloat("_Cull", (float)UnityEngine.Rendering.CullMode.Front);
+                if (m.HasProperty("_EmissionColor"))
+                {
+                    m.EnableKeyword("_EMISSION");
+                    m.SetColor("_EmissionColor", color * 0.6f);
+                }
+                _mats[key] = m;
+            }
+            var b = mesh.bounds;
+            var scale = new Vector3(
+                (b.size.x + 2f * width) / Mathf.Max(0.01f, b.size.x),
+                (b.size.y + 2f * width) / Mathf.Max(0.01f, b.size.y),
+                (b.size.z + 2f * width) / Mathf.Max(0.01f, b.size.z));
+            var o = MeshKit.Make("Outline", mesh, m, go.transform, false);
+            o.transform.localScale = scale;
+            o.transform.localPosition = b.center - Vector3.Scale(b.center, scale);
+        }
+
+        public void SetHoldingVisible(bool visible)
+        {
+            if (_holdRoot != null) _holdRoot.gameObject.SetActive(visible);
+        }
 
         private Material Mat(Color c, float smoothness, float metallic)
         {

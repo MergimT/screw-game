@@ -1,7 +1,7 @@
 {
     "name": "ScrewGame.Presentation",
     "rootNamespace": "ScrewGame.Presentation",
-    "references": ["ScrewGame.Contracts", "ScrewGame.Core", "ScrewGame.Validation", "ScrewGame.Persistence", "ScrewGame.Progression", "ScrewGame.Session", "ScrewGame.Services", "Unity.InputSystem", "Unity.TextMeshPro", "UnityEngine.UI"],
+    "references": ["ScrewGame.Contracts", "ScrewGame.Core", "ScrewGame.Validation", "ScrewGame.Persistence", "ScrewGame.Progression", "ScrewGame.Session", "ScrewGame.Services", "Unity.InputSystem", "Unity.TextMeshPro", "UnityEngine.UI", "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

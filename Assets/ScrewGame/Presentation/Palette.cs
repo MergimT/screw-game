@@ -43,6 +43,10 @@ namespace ScrewGame.Presentation
         public static readonly Color Accent = Hex(0x8b5cf6);
         public static readonly Color Success = Hex(0x2f9e44);
         public static readonly Color Slot = Hex(0xd7e3ea);
+        public static readonly Color Shelf = Hex(0xe8f6ff);
+        public static readonly Color BufferBar = Hex(0x2b74d8);
+        public static readonly Color Gold = Hex(0xffd23f);
+        public static readonly Color Badge = Hex(0xff5f8f);
         public static readonly Color Socket = Hex(0x9fb0bd);
         public static readonly Color SlotInner = Hex(0x8aa2b3);
         public static readonly Color TrayFace = Hex(0xf5f7fa);

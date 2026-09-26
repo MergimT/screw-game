@@ -15,6 +15,8 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 using UnityEngine.UI;
 
 namespace ScrewGame.Presentation
@@ -49,6 +51,8 @@ namespace ScrewGame.Presentation
         private TextMeshProUGUI _toast;
         private float _toastUntil;
         private Button _undoBtn, _hintBtn, _restartBtn;
+        private TextMeshProUGUI _undoCount, _hintCount;
+        private bool _homePreview;
         private TextMeshProUGUI _levelLabel, _tutorialLabel;
         private string _highlightScrew;
         private Task<HintResult> _hintTask;
@@ -154,12 +158,33 @@ namespace ScrewGame.Presentation
             _board = boardGo.AddComponent<BoardView>();
             _board.TrayAnchor = camGo.transform;
             BuildBackdrop(camGo.transform);
+            BuildPostFx();
 
             if (LitTemplate == null)
             {
                 var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
                 LitTemplate = new Material(shader);
             }
+        }
+
+        private void BuildPostFx()
+        {
+            var cd = _camera.GetUniversalAdditionalCameraData();
+            cd.renderPostProcessing = true;
+            var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            var bloom = profile.Add<Bloom>(true);
+            bloom.threshold.value = 0.92f;
+            bloom.intensity.value = 0.45f;
+            bloom.scatter.value = 0.62f;
+            var grade = profile.Add<ColorAdjustments>(true);
+            grade.saturation.value = 12f;
+            grade.contrast.value = 8f;
+            var vignette = profile.Add<Vignette>(true);
+            vignette.intensity.value = 0.18f;
+            vignette.smoothness.value = 0.55f;
+            var volume = new GameObject("PostFx").AddComponent<Volume>();
+            volume.isGlobal = true;
+            volume.sharedProfile = profile;
         }
 
         private void BuildBackdrop(Transform cam)
@@ -232,8 +257,16 @@ namespace ScrewGame.Presentation
 
         private void LateUpdate()
         {
+            if (_homePreview && _rig != null)
+            {
+                _rig.RegionBottom = SafeY(0.36f);
+                _rig.RegionTop = SafeY(0.74f);
+                _rig.Yaw = -152f + Mathf.Sin(Time.unscaledTime * 0.5f) * 28f;
+                _rig.Apply();
+                return;
+            }
             if (_hud == null || _rig == null) return;
-            _rig.RegionBottom = SafeY(0.13f);
+            _rig.RegionBottom = SafeY(0.15f);
             _rig.RegionTop = SafeY(0.64f);
             _rig.Apply();
             _board.LayoutHolding(_camera, SafeY(0.62f), SafeY(0.885f));
@@ -271,7 +304,8 @@ namespace ScrewGame.Presentation
         {
             if (_screen != null) Destroy(_screen.gameObject);
             if (_hud != null) { Destroy(_hud.gameObject); _hud = null; }
-            _screen = UiKit.Panel(_safe, "Screen", opaque ? Palette.Background : new Color(0, 0, 0, 0));
+            _homePreview = false;
+            _screen = UiKit.Panel(_safe, "Screen", opaque ? new Color(0.05f, 0.25f, 0.55f, 0.28f) : new Color(0, 0, 0, 0));
             _screen.SetAsFirstSibling();
             return _screen;
         }
@@ -279,39 +313,95 @@ namespace ScrewGame.Presentation
         private void ShowHome()
         {
             _board.Clear();
-            var s = NewScreen(true);
-            UiKit.Column(s, 28f, 90);
-            UiKit.Heading(s, Loc.T("title"), 88f, 260f);
+            var s = NewScreen(false);
+            s.GetComponent<Image>().raycastTarget = false;
             var cur = _campaign.Current(_session.Profile);
-            UiKit.Button(s, cur != null ? Loc.T("play") + "  -  " + Loc.F("level", _campaign.IndexOf(cur.LevelId) + 1) : Loc.T("levels"),
-                () => { if (cur != null) StartLevel(cur.LevelId, false, ""); else ShowLevels(); }, Palette.Primary, 48f);
-            UiKit.Button(s, Loc.T("levels"), ShowLevels);
+            var previewId = cur != null ? cur.LevelId : _campaign.Entries.Count > 0 ? _campaign.Entries[_campaign.Entries.Count - 1].LevelId : null;
+            if (previewId != null && _levels.TryGetValue(previewId, out var preview))
+            {
+                _board.Build(preview, LitTemplate);
+                _board.SetHoldingVisible(false);
+                _rig.Configure(preview.Definition.Camera, _board.ObjectBounds);
+                _board.Rebuild(Rules.CreateInitial(preview));
+                _homePreview = true;
+            }
+
+            var titleRt = UiKit.Empty(s, "Title");
+            UiKit.Place(titleRt, new Vector2(0.04f, 0.77f), new Vector2(0.96f, 0.95f));
+            titleRt.localRotation = Quaternion.Euler(0f, 0f, 3f);
+            var title = UiKit.Label(titleRt, Loc.T("title").ToUpperInvariant(), 118f);
+            title.fontStyle = FontStyles.Bold;
+            title.enableVertexGradient = true;
+            title.colorGradient = new VertexGradient(Color.white, Color.white, Palette.Gold, Palette.Primary);
+            title.outlineWidth = 0.3f;
+            title.characterSpacing = 4f;
+            for (int i = 0; i < 3; i++)
+            {
+                var star = UiKit.StarImage(s, Palette.Gold);
+                var rt = (RectTransform)star.transform;
+                float x = 0.2f + i * 0.3f;
+                UiKit.Place(rt, new Vector2(x - 0.05f, 0.735f + (i == 1 ? 0.012f : 0f)), new Vector2(x + 0.05f, 0.79f + (i == 1 ? 0.012f : 0f)));
+                rt.localRotation = Quaternion.Euler(0f, 0f, (i - 1) * -14f);
+            }
+
+            var menu = UiKit.Empty(s, "Menu");
+            UiKit.Place(menu, new Vector2(0.08f, 0.04f), new Vector2(0.92f, 0.34f));
+            UiKit.Column(menu, 26f, 0);
+            var play = UiKit.Button(menu, cur != null ? Loc.T("play").ToUpperInvariant() + "\n<size=40>" + Loc.F("level", _campaign.IndexOf(cur.LevelId) + 1) + "</size>" : Loc.T("levels"),
+                () => { if (cur != null) StartLevel(cur.LevelId, false, ""); else ShowLevels(); }, Palette.Primary, 76f);
+            play.GetComponent<LayoutElement>().preferredHeight = 210f;
+            play.gameObject.AddComponent<Pulse>();
+            var grid = UiKit.Empty(menu, "Grid");
+            var gle = grid.gameObject.AddComponent<LayoutElement>();
+            gle.preferredHeight = 260f;
+            var g = grid.gameObject.AddComponent<GridLayoutGroup>();
+            g.cellSize = new Vector2(430f, 115f);
+            g.spacing = new Vector2(26f, 26f);
+            g.childAlignment = TextAnchor.MiddleCenter;
+            g.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            g.constraintCount = 2;
+            UiKit.Button(grid, Loc.T("levels"), ShowLevels, Palette.Accent, 40f);
             var today = DailyChallenge.DateKey(_clock.UtcNow);
-            var dailyBtn = UiKit.Button(s, DailyChallenge.IsCompleted(_session.Profile, today) ? Loc.T("daily_done") : Loc.T("daily"), () => StartDaily(today));
+            var dailyBtn = UiKit.Button(grid, DailyChallenge.IsCompleted(_session.Profile, today) ? Loc.T("daily_done") : Loc.T("daily"), () => StartDaily(today), Palette.Badge, 40f);
             dailyBtn.interactable = !DailyChallenge.IsCompleted(_session.Profile, today) && _session.Profile.Progress.CompletedLevels.Count >= 3;
-            UiKit.Button(s, Loc.T("collection"), ShowCollection);
-            UiKit.Button(s, Loc.T("settings"), ShowSettings);
+            UiKit.Button(grid, Loc.T("collection"), ShowCollection, Palette.Secondary, 40f);
+            UiKit.Button(grid, Loc.T("settings"), ShowSettings, Palette.BufferBar, 40f);
         }
 
         private void ShowLevels()
         {
             _board.Clear();
             var s = NewScreen(true);
-            UiKit.Column(s, 16f, 60);
-            UiKit.Heading(s, Loc.T("levels"), 72f, 180f);
+            UiKit.Column(s, 24f, 60);
+            UiKit.Heading(s, Loc.T("levels").ToUpperInvariant(), 88f, 180f).fontStyle = FontStyles.Bold;
+            var grid = UiKit.Empty(s, "Grid");
+            grid.gameObject.AddComponent<LayoutElement>().preferredHeight = 4 * 300f;
+            var g = grid.gameObject.AddComponent<GridLayoutGroup>();
+            g.cellSize = new Vector2(270f, 270f);
+            g.spacing = new Vector2(34f, 30f);
+            g.childAlignment = TextAnchor.UpperCenter;
+            g.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            g.constraintCount = 3;
             for (int i = 0; i < _campaign.Entries.Count; i++)
             {
                 var e = _campaign.Entries[i];
                 bool unlocked = _campaign.IsUnlocked(_session.Profile, e.LevelId);
                 bool done = _campaign.IsCompleted(_session.Profile, e.LevelId);
-                var text = Loc.F("level", i + 1) + "  " + e.Name + (done ? "  [x]" : unlocked ? "" : "  - " + Loc.T("locked"));
                 var id = e.LevelId;
-                var b = UiKit.Button(s, text, () => StartLevel(id, false, ""), done ? Palette.Success : (Color?)null, 34f);
-                b.GetComponent<LayoutElement>().preferredHeight = 100f;
-                b.GetComponent<LayoutElement>().minHeight = 100f;
+                var color = done ? Palette.Secondary : unlocked ? Palette.Primary : new Color(0.62f, 0.68f, 0.76f);
+                var b = UiKit.Button(grid, "<size=96>" + (i + 1) + "</size>\n<size=30>" + (unlocked ? e.Name : Loc.T("locked")) + "</size>", () => StartLevel(id, false, ""), color, 40f);
                 b.interactable = unlocked;
+                UiKit.Round(b.GetComponent<Image>(), 1.6f);
+                if (done)
+                {
+                    var star = (RectTransform)UiKit.StarImage(b.transform, Palette.Gold).transform;
+                    star.anchorMin = star.anchorMax = new Vector2(1f, 1f);
+                    star.sizeDelta = new Vector2(90f, 90f);
+                    star.anchoredPosition = new Vector2(-18f, -18f);
+                    star.localRotation = Quaternion.Euler(0f, 0f, -12f);
+                }
             }
-            UiKit.Button(s, Loc.T("back"), ShowHome);
+            UiKit.Button(s, Loc.T("back"), ShowHome, Palette.Accent);
         }
 
         private void ShowCollection()
@@ -418,24 +508,36 @@ namespace ScrewGame.Presentation
             UiKit.Place(top, new Vector2(0f, 0.905f), new Vector2(1f, 1f), new Vector2(28f, 8f), new Vector2(-28f, -16f));
             var menu = UiKit.Button(top, "II", () => { CancelHint(); ShowHome(); }, Palette.Accent, 44f);
             UiKit.Place((RectTransform)menu.transform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, -55f), new Vector2(110f, 55f));
-            var titleHolder = UiKit.Empty(top, "Title");
-            UiKit.Place(titleHolder, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(130f, 0f), new Vector2(-130f, 0f));
+            var badge = UiKit.Panel(top, "Badge", Palette.Primary);
+            UiKit.Round(badge.GetComponent<Image>(), 1.6f);
+            badge.GetComponent<Image>().raycastTarget = false;
+            UiKit.Place(badge, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-230f, -62f), new Vector2(230f, 62f));
+            var badgeRim = badge.gameObject.AddComponent<Outline>();
+            badgeRim.effectColor = Color.white;
+            badgeRim.effectDistance = new Vector2(5f, -5f);
+            var badgeShadow = badge.gameObject.AddComponent<Shadow>();
+            badgeShadow.effectColor = new Color(0f, 0f, 0f, 0.3f);
+            badgeShadow.effectDistance = new Vector2(0f, -10f);
             string title = daily ? Loc.T("daily") : Loc.F("level", _campaign.IndexOf(level.Definition.Id) + 1).ToUpperInvariant();
-            _levelLabel = UiKit.Label(titleHolder, "<size=60>" + title + "</size>\n<size=30>" + level.Definition.Name + "</size>", 60f);
+            _levelLabel = UiKit.Label(badge, title, 62f);
             _levelLabel.fontStyle = TMPro.FontStyles.Bold;
-            _levelLabel.outlineWidth = 0.22f;
+            _levelLabel.outlineWidth = 0.25f;
             _levelLabel.outlineColor = Palette.Outline;
+            var nameRt = UiKit.Empty(top, "Name");
+            UiKit.Place(nameRt, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-300f, -46f), new Vector2(300f, 2f));
+            UiKit.Label(nameRt, level.Definition.Name, 34f).fontStyle = TMPro.FontStyles.Bold;
 
             var tut = UiKit.Empty(_hud, "Tutorial");
-            UiKit.Place(tut, new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.125f));
+            UiKit.Place(tut, new Vector2(0.05f, 0.105f), new Vector2(0.95f, 0.145f));
             _tutorialLabel = UiKit.Label(tut, "", 34f);
 
             var bottom = UiKit.Empty(_hud, "Bottom");
-            UiKit.Place(bottom, new Vector2(0f, 0f), new Vector2(1f, 0.075f), new Vector2(28f, 20f), new Vector2(-28f, 0f));
-            UiKit.Row(bottom, 18f);
-            _undoBtn = UiKit.Button(bottom, Loc.T("undo"), OnUndo, Palette.Accent, 36f);
-            _hintBtn = UiKit.Button(bottom, Loc.T("hint"), OnHint, Palette.Secondary, 36f);
-            _restartBtn = UiKit.Button(bottom, Loc.T("restart"), OnRestart, Palette.Primary, 36f);
+            UiKit.Place(bottom, new Vector2(0f, 0f), new Vector2(1f, 0.1f), new Vector2(60f, 14f), new Vector2(-60f, 0f));
+            UiKit.Row(bottom, 40f);
+            _undoBtn = UiKit.Booster(bottom, Loc.T("undo"), OnUndo, Palette.Accent, out _undoCount);
+            _hintBtn = UiKit.Booster(bottom, Loc.T("hint"), OnHint, Palette.Secondary, out _hintCount);
+            _restartBtn = UiKit.Booster(bottom, Loc.T("restart"), OnRestart, Palette.Primary, out var restartCount);
+            restartCount.transform.parent.gameObject.SetActive(false);
             _hud.SetSiblingIndex(1);
         }
 
@@ -458,8 +560,9 @@ namespace ScrewGame.Presentation
             var h = _session.Help;
             bool open = !_session.Attempt.Closed;
             int undo = h.Available(HelpKind.Undo), hint = h.Available(HelpKind.Hint);
-            UiKit.SetText(_undoBtn, Loc.T("undo") + " (" + undo + ")");
-            UiKit.SetText(_hintBtn, _hintTask != null ? Loc.T("thinking") : Loc.T("hint") + " (" + hint + ")");
+            _undoCount.text = undo.ToString();
+            _hintCount.text = hint.ToString();
+            UiKit.SetText(_hintBtn, _hintTask != null ? "..." : Loc.T("hint"));
             _undoBtn.interactable = open && _session.Engine.UndoDepth > 0;
             _hintBtn.interactable = open && _hintTask == null;
             _restartBtn.interactable = true;
@@ -594,11 +697,24 @@ namespace ScrewGame.Presentation
             _haptics.Play(HapticKind.Success);
             var def = _session.Level.Definition;
             var card = Overlay();
-            UiKit.Heading(card, Loc.T("won"), 64f, 120f);
-            UiKit.Heading(card, Loc.F("won_body", def.Name), 38f, 110f);
+            var stars = UiKit.Empty(card, "Stars");
+            stars.gameObject.AddComponent<LayoutElement>().preferredHeight = 150f;
+            for (int i = 0; i < 3; i++)
+            {
+                var st = (RectTransform)UiKit.StarImage(stars, Palette.Gold).transform;
+                st.anchorMin = st.anchorMax = new Vector2(0.5f, 0.5f);
+                float big = i == 1 ? 170f : 125f;
+                st.sizeDelta = new Vector2(big, big);
+                st.anchoredPosition = new Vector2((i - 1) * 160f, i == 1 ? 30f : 0f);
+                st.localRotation = Quaternion.Euler(0f, 0f, (i - 1) * -15f);
+                st.gameObject.AddComponent<PopIn>().Delay = 0.15f + i * 0.18f;
+            }
+            UiKit.Heading(card, Loc.T("won"), 70f, 110f).fontStyle = FontStyles.Bold;
+            UiKit.Heading(card, Loc.F("won_body", def.Name), 38f, 100f);
             var next = _session.Attempt.IsDaily ? null : _campaign.Next(def.Id);
-            if (next != null) UiKit.Button(card, Loc.T("next"), () => { CloseOverlay(); StartLevel(next.LevelId, false, ""); }, Palette.Primary);
+            if (next != null) UiKit.Button(card, Loc.T("next"), () => { CloseOverlay(); StartLevel(next.LevelId, false, ""); }, Palette.Primary, 48f);
             UiKit.Button(card, Loc.T("menu"), () => { CloseOverlay(); ShowHome(); });
+            if (!_board.ReducedMotion) Confetti.Burst(_overlay, 110);
         }
 
         private void ShowStuck()

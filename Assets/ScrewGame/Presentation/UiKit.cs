@@ -116,6 +116,84 @@ namespace ScrewGame.Presentation
             img.pixelsPerUnitMultiplier = 1.4f / cornerScale;
         }
 
+        private static Sprite _star;
+
+        /// <summary>Generated anti-aliased five-point star sprite.</summary>
+        public static Sprite Star()
+        {
+            if (_star != null) return _star;
+            const int size = 128;
+            var pts = new Vector2[10];
+            for (int i = 0; i < 10; i++)
+            {
+                float a = Mathf.PI * 0.5f + i * Mathf.PI / 5f;
+                float r = i % 2 == 0 ? 0.48f : 0.21f;
+                pts[i] = new Vector2(0.5f + Mathf.Cos(a) * r, 0.47f + Mathf.Sin(a) * r) * size;
+            }
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                int hits = 0;
+                for (int sy = 0; sy < 4; sy++)
+                for (int sx = 0; sx < 4; sx++)
+                    if (Inside(pts, new Vector2(x + (sx + 0.5f) / 4f, y + (sy + 0.5f) / 4f))) hits++;
+                tex.SetPixel(x, y, new Color(1f, 1f, 1f, hits / 16f));
+            }
+            tex.Apply();
+            _star = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+            return _star;
+        }
+
+        private static bool Inside(Vector2[] poly, Vector2 p)
+        {
+            bool inside = false;
+            for (int i = 0, j = poly.Length - 1; i < poly.Length; j = i++)
+                if ((poly[i].y > p.y) != (poly[j].y > p.y) && p.x < (poly[j].x - poly[i].x) * (p.y - poly[i].y) / (poly[j].y - poly[i].y) + poly[i].x)
+                    inside = !inside;
+            return inside;
+        }
+
+        public static Image StarImage(Transform parent, Color color)
+        {
+            var go = new GameObject("Star", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var img = go.GetComponent<Image>();
+            img.sprite = Star();
+            img.color = color;
+            img.raycastTarget = false;
+            img.preserveAspect = true;
+            var sh = go.AddComponent<Shadow>();
+            sh.effectColor = new Color(0f, 0f, 0f, 0.3f);
+            sh.effectDistance = new Vector2(0f, -6f);
+            return img;
+        }
+
+        /// <summary>Round booster button with a caption and a count bubble; returns the button and the bubble label.</summary>
+        public static Button Booster(Transform parent, string caption, Action onClick, Color color, out TextMeshProUGUI count)
+        {
+            var holder = new GameObject("Booster " + caption, typeof(RectTransform));
+            holder.transform.SetParent(parent, false);
+            var b = Button(holder.transform, caption, onClick, color, 34f);
+            var brt = (RectTransform)b.transform;
+            brt.anchorMin = brt.anchorMax = new Vector2(0.5f, 0.5f);
+            brt.sizeDelta = new Vector2(170f, 170f);
+            Round(b.GetComponent<Image>(), 2.9f);
+            var bubble = Panel(b.transform, "Count", Palette.Badge);
+            Round(bubble.GetComponent<Image>(), 1.2f);
+            bubble.GetComponent<Image>().raycastTarget = false;
+            bubble.anchorMin = bubble.anchorMax = new Vector2(1f, 1f);
+            bubble.sizeDelta = new Vector2(70f, 70f);
+            bubble.anchoredPosition = new Vector2(-12f, -12f);
+            var rim = bubble.gameObject.AddComponent<Outline>();
+            rim.effectColor = Color.white;
+            rim.effectDistance = new Vector2(3f, -3f);
+            count = Label(bubble, "0", 34f);
+            count.fontStyle = FontStyles.Bold;
+            count.margin = Vector4.zero;
+            return b;
+        }
+
         public static void SetText(Button b, string text) => b.GetComponentInChildren<TextMeshProUGUI>().text = text;
 
         public static VerticalLayoutGroup Column(RectTransform rt, float spacing = 24f, int pad = 48)
