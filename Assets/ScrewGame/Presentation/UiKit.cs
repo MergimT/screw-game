@@ -54,7 +54,7 @@ namespace ScrewGame.Presentation
             t.fontSize = size;
             t.color = Palette.Ink;
             t.alignment = align;
-            t.enableWordWrapping = true;
+            t.textWrappingMode = TextWrappingModes.Normal;
             t.raycastTarget = false;
             Stretch((RectTransform)go.transform);
             return t;

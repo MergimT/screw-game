@@ -12,17 +12,17 @@ namespace ScrewGame.Tests
         {
             get
             {
-                var dir = AppContext.BaseDirectory;
-                for (int i = 0; i < 8 && dir != null; i++)
-                {
-                    var candidate = Path.Combine(dir, "Assets", "ScrewGame", "Resources", "Levels");
-                    if (Directory.Exists(candidate)) return candidate;
-                    var local = Path.Combine(dir, "Levels");
-                    if (Directory.Exists(local)) return local;
-                    dir = Path.GetDirectoryName(dir.TrimEnd(Path.DirectorySeparatorChar));
-                }
                 var cwd = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "ScrewGame", "Resources", "Levels");
                 if (Directory.Exists(cwd)) return cwd;
+                var dir = new DirectoryInfo(AppContext.BaseDirectory);
+                for (int i = 0; i < 8 && dir != null; i++)
+                {
+                    var candidate = Path.Combine(dir.FullName, "Assets", "ScrewGame", "Resources", "Levels");
+                    if (Directory.Exists(candidate)) return candidate;
+                    var local = Path.Combine(dir.FullName, "Levels");
+                    if (Directory.Exists(local)) return local;
+                    dir = dir.Parent;
+                }
                 throw new DirectoryNotFoundException("Level content directory not found");
             }
         }
