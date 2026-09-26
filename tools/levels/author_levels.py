@@ -3,13 +3,13 @@
 
 Designs are authored by hand (parts, blockers, screw colors, placement faces). This script only
 computes screw head coordinates on the chosen face so positions stay consistent with part sizes.
-Run: python3 tools/levels/author_levels.py  (writes Assets/ScrewGame/Content/Levels/L01..L10.json)
+Run: python3 tools/levels/author_levels.py  (writes Assets/ScrewGame/Resources/Levels/L01..L10.json)
 Validation/solving is done by the C# production pipeline (tools/dotnet), never here.
 """
 import json, os
 
 R, B, Y, G, P, O, T, K = range(8)
-OUT = os.path.join(os.path.dirname(__file__), "..", "..", "Assets", "ScrewGame", "Content", "Levels")
+OUT = os.path.join(os.path.dirname(__file__), "..", "..", "Assets", "ScrewGame", "Resources", "Levels")
 
 FACES = {"top": (0, 1, 0), "front": (0, 0, 1), "back": (0, 0, -1), "left": (-1, 0, 0), "right": (1, 0, 0)}
 

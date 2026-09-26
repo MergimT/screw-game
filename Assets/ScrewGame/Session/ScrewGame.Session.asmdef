@@ -1,0 +1,14 @@
+{
+    "name": "ScrewGame.Session",
+    "rootNamespace": "ScrewGame.Session",
+    "references": ["ScrewGame.Contracts", "ScrewGame.Core", "ScrewGame.Validation", "ScrewGame.Persistence", "ScrewGame.Progression"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

@@ -5,7 +5,7 @@ using ScrewGame.Persistence;
 
 namespace ScrewGame.Tests
 {
-    /// <summary>Loads bundled level JSON from Assets/ScrewGame/Content/Levels (Unity or dotnet test output).</summary>
+    /// <summary>Loads bundled level JSON from Assets/ScrewGame/Resources/Levels (Unity or dotnet test output).</summary>
     public static class SampleContent
     {
         public static string LevelsDirectory
@@ -15,13 +15,13 @@ namespace ScrewGame.Tests
                 var dir = AppContext.BaseDirectory;
                 for (int i = 0; i < 8 && dir != null; i++)
                 {
-                    var candidate = Path.Combine(dir, "Assets", "ScrewGame", "Content", "Levels");
+                    var candidate = Path.Combine(dir, "Assets", "ScrewGame", "Resources", "Levels");
                     if (Directory.Exists(candidate)) return candidate;
                     var local = Path.Combine(dir, "Levels");
                     if (Directory.Exists(local)) return local;
                     dir = Path.GetDirectoryName(dir.TrimEnd(Path.DirectorySeparatorChar));
                 }
-                var cwd = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "ScrewGame", "Content", "Levels");
+                var cwd = Path.Combine(Directory.GetCurrentDirectory(), "Assets", "ScrewGame", "Resources", "Levels");
                 if (Directory.Exists(cwd)) return cwd;
                 throw new DirectoryNotFoundException("Level content directory not found");
             }

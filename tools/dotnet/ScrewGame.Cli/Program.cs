@@ -63,7 +63,11 @@ public static class Program
             Print(row);
         }
         if (reportPath != null)
+        {
+            var reportDir = Path.GetDirectoryName(Path.GetFullPath(reportPath));
+            if (!string.IsNullOrEmpty(reportDir)) Directory.CreateDirectory(reportDir);
             File.WriteAllText(reportPath, JsonConvert.SerializeObject(rows, Formatting.Indented) + "\n");
+        }
         return allOk ? 0 : 1;
     }
 
