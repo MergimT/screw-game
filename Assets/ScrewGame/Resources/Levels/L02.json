@@ -1,0 +1,373 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L02",
+  "ContentVersion": 2,
+  "Name": "Cupcake",
+  "ObjectId": "cupcake",
+  "Family": "sweets",
+  "TrayPositions": 4,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    0,
+    3,
+    4,
+    1,
+    0,
+    4
+  ],
+  "Parts": [
+    {
+      "Id": "cherry",
+      "Blockers": [],
+      "Shape": "sphere",
+      "Position": [
+        0,
+        1.55,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.64,
+        0.64,
+        0.64
+      ],
+      "Material": 8
+    },
+    {
+      "Id": "icing",
+      "Blockers": [
+        "cherry"
+      ],
+      "Shape": "sphere",
+      "Position": [
+        0,
+        0.85,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.1,
+        2.1,
+        2.1
+      ],
+      "Material": 3
+    },
+    {
+      "Id": "cup",
+      "Blockers": [
+        "icing"
+      ],
+      "Shape": "cylinder",
+      "Position": [
+        0,
+        -0.35,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.0,
+        1.2,
+        2.0
+      ],
+      "Material": 1
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L02-s00",
+      "PartId": "cherry",
+      "Color": 3,
+      "Position": [
+        0.207,
+        1.55,
+        0.244
+      ],
+      "Normal": [
+        0.6483,
+        0.0,
+        0.7614
+      ]
+    },
+    {
+      "Id": "L02-s01",
+      "PartId": "cherry",
+      "Color": 0,
+      "Position": [
+        0.0,
+        1.831,
+        0.153
+      ],
+      "Normal": [
+        0.0,
+        0.8782,
+        0.4783
+      ]
+    },
+    {
+      "Id": "L02-s02",
+      "PartId": "cherry",
+      "Color": 3,
+      "Position": [
+        0.164,
+        1.758,
+        -0.179
+      ],
+      "Normal": [
+        0.5136,
+        0.6495,
+        -0.5607
+      ]
+    },
+    {
+      "Id": "L02-s03",
+      "PartId": "icing",
+      "Color": 0,
+      "Position": [
+        0.298,
+        0.85,
+        1.007
+      ],
+      "Normal": [
+        0.284,
+        0.0,
+        0.9588
+      ]
+    },
+    {
+      "Id": "L02-s04",
+      "PartId": "icing",
+      "Color": 3,
+      "Position": [
+        -0.37,
+        1.189,
+        0.922
+      ],
+      "Normal": [
+        -0.3527,
+        0.3231,
+        0.8782
+      ]
+    },
+    {
+      "Id": "L02-s05",
+      "PartId": "icing",
+      "Color": 4,
+      "Position": [
+        0.055,
+        0.222,
+        0.84
+      ],
+      "Normal": [
+        0.0525,
+        -0.598,
+        0.7998
+      ]
+    },
+    {
+      "Id": "L02-s06",
+      "PartId": "icing",
+      "Color": 0,
+      "Position": [
+        0.441,
+        1.425,
+        0.76
+      ],
+      "Normal": [
+        0.42,
+        0.5478,
+        0.7236
+      ]
+    },
+    {
+      "Id": "L02-s07",
+      "PartId": "icing",
+      "Color": 1,
+      "Position": [
+        -0.786,
+        0.711,
+        0.682
+      ],
+      "Normal": [
+        -0.7487,
+        -0.1324,
+        0.6495
+      ]
+    },
+    {
+      "Id": "L02-s08",
+      "PartId": "icing",
+      "Color": 4,
+      "Position": [
+        0.723,
+        0.39,
+        0.606
+      ],
+      "Normal": [
+        0.6888,
+        -0.4382,
+        0.5776
+      ]
+    },
+    {
+      "Id": "L02-s09",
+      "PartId": "icing",
+      "Color": 4,
+      "Position": [
+        0.0,
+        1.814,
+        0.416
+      ],
+      "Normal": [
+        0.0,
+        0.9182,
+        0.3961
+      ]
+    },
+    {
+      "Id": "L02-s10",
+      "PartId": "icing",
+      "Color": 1,
+      "Position": [
+        0.46,
+        1.649,
+        -0.502
+      ],
+      "Normal": [
+        0.4379,
+        0.7614,
+        -0.478
+      ]
+    },
+    {
+      "Id": "L02-s11",
+      "PartId": "icing",
+      "Color": 0,
+      "Position": [
+        -0.826,
+        1.494,
+        0.073
+      ],
+      "Normal": [
+        -0.7868,
+        0.6133,
+        0.069
+      ]
+    },
+    {
+      "Id": "L02-s12",
+      "PartId": "cup",
+      "Color": 4,
+      "Position": [
+        -0.94,
+        -0.35,
+        0.342
+      ],
+      "Normal": [
+        -0.9397,
+        0,
+        0.342
+      ]
+    },
+    {
+      "Id": "L02-s13",
+      "PartId": "cup",
+      "Color": 0,
+      "Position": [
+        -0.574,
+        -0.35,
+        0.819
+      ],
+      "Normal": [
+        -0.5736,
+        0,
+        0.8192
+      ]
+    },
+    {
+      "Id": "L02-s14",
+      "PartId": "cup",
+      "Color": 4,
+      "Position": [
+        0.0,
+        -0.35,
+        1.0
+      ],
+      "Normal": [
+        0.0,
+        0,
+        1.0
+      ]
+    },
+    {
+      "Id": "L02-s15",
+      "PartId": "cup",
+      "Color": 4,
+      "Position": [
+        0.574,
+        -0.35,
+        0.819
+      ],
+      "Normal": [
+        0.5736,
+        0,
+        0.8192
+      ]
+    },
+    {
+      "Id": "L02-s16",
+      "PartId": "cup",
+      "Color": 0,
+      "Position": [
+        0.94,
+        -0.35,
+        0.342
+      ],
+      "Normal": [
+        0.9397,
+        0,
+        0.342
+      ]
+    },
+    {
+      "Id": "L02-s17",
+      "PartId": "cup",
+      "Color": 1,
+      "Position": [
+        0,
+        0.25,
+        0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 5,
+    "MaxPitch": 70,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "first holding-slot use",
+    "DifficultyHypothesis": 1,
+    "LayoutId": "cupcake-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}

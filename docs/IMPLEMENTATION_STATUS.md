@@ -1,0 +1,27 @@
+# Implementation status — Project Screw (native Unity)
+
+Evidence states: **implemented** (code exists) · **automatically verified** (tests/tools executed, output recorded) · **device verified** (ran on a physical phone) · **blocked** (named external gate). Implementation and verification are tracked in separate columns and are not interchangeable.
+
+Last updated: 2026-09-26. Owner of every row: lead agent (Devin session) unless noted.
+
+| Stage | Acceptance criteria (abridged from the pack) | Implementation | Verification evidence | Blockers |
+| --- | --- | --- | --- | --- |
+| 01 Architecture & contracts | GAME_SPEC/ARCHITECTURE/DEPENDENCIES; shared commands/results/events/snapshots/save/hint/help/reward/purchase/diagnostic contracts; ownership rules | implemented (`Contracts/`, `docs/`) | automatically verified: contracts and engine-free assemblies compile for netstandard2.1 (C# 9, warnings as errors); `ContractTests`, resolver fixture, victory-after-commit and terminal-outcome tests pass ; Unity 6000.3.24f1 compiles all asmdefs | — |
+| 02 Unity project & builds | Pinned editor/packages, URP, Input System, bootstrap scene, safe area, composition root, idempotent setup, build entry points, docs | implemented: `Packages/manifest.json`, `ProjectSettings/ProjectVersion.txt`, `Editor/ProjectSetup.cs`, `Editor/BuildScripts.cs`, `Presentation/GameRoot.cs`, `SafeArea` | automatically verified: `ProjectSetup.Run` exit 0; Unity EditMode 99/99 passed; `IosXcodeExport` → `Builds/iOS/Xcode` Succeeded, 0 errors, `TARGETED_DEVICE_FAMILY = 1` (iPhone-only, portrait, iOS 15.0); Linux64 smoke player builds and starts | iOS archive/sign/install needs macOS+Xcode+Apple Developer account; Android APK needs CMake 3.22.1 (Android deprioritised) |
+| 03 Deterministic rules | Plain C# rules, ordered events, rejected no-ops, revisions, resolver fixture, invariants, trapped/solvable tests | implemented (`Core/`) | automatically verified: 99/99 NUnit tests pass (rules, invariants, replay) | — |
+| 04 Validator/solver/hints | Structural validation, bounded solver with SOLVED/UNSOLVABLE/INCONCLUSIVE, witness replay, current-state hints, stale rejection, batch reports | implemented (`Validation/`, `tools/dotnet/ScrewGame.Cli`) | automatically verified: tests + batch CLI → L01–L10 `LOGIC_OK`, `SOLVED`, replay `WIN` (`reports/level-validation.json`) | geometry visibility pending Unity (Prompt 09) |
+| 05 Saves/session/lifecycle | Versioned profile, atomic write + backup, corruption/migration handling, commit-before-animate, durable help, idempotent rewards | implemented (`Persistence/`, `Session/`) | automatically verified: fault-injected storage tests (write failure rollback, corrupt primary/backup, checksum, newer version read-only, duplicate reward) | real app lifecycle (pause/kill) needs Unity player/device |
+| 06 Board/camera/picking | Build views from state, orbit with clamped tilt, tap vs drag, nearest-hit picking through occluders, settled rebuild | implemented (`Presentation/BoardView.cs`, `CameraRig.cs`, `GameRoot.cs`) | automatically verified on Linux64 desktop player (430×900 portrait window): L01 played to win overlay, L02 started, tap picking + rebuild work, no exceptions in player log | not device verified (needs iPhone) |
+| 07 Art/audio/haptics | Original look, motion, reduced motion, sounds, haptics | partially implemented: procedural rounded meshes (`MeshKit`), browser-matched palette + symbols, gradient backdrop, unscrew/fly/tray/fall animations, synthesized `SoundBank`, `DeviceHaptics` | visual check in desktop player screenshots only | audio/haptics on device; reduced-motion review |
+| 08 UI/tutorial/a11y/loc | Home, level list, HUD, win/loss, settings, tutorial, EN/FR, symbols, reduced motion | partially implemented (`UiKit`, `Localization`, `GameRoot` screens); tutorial overlay minimal | home, level list, HUD, win overlay exercised in desktop player | tutorial/a11y/FR not reviewed; device |
+| 09 Level editor & geometry | In-Editor authoring, deterministic export, geometric visibility check | not started (Python authoring script `tools/levels/author_levels.py` is interim) | — | — (next agent task) |
+| 10 Ten-level prototype → campaign | 10 handmade validated levels, then reviewed campaign toward 100 | 10 levels authored | logically verified (see 04); not playtested; no human playtest claimed | human review |
+| 11 Collection & daily | Campaign unlocks, collection shelf, UTC daily pinned per date | implemented (`Progression/Campaign.cs`) | automatically verified: daily determinism/pinning/UTC tests | UI integration unverified |
+| 12 Analytics/crash/remote | Firebase Analytics + Crashlytics adapters, consent gating | stub only (`LocalAnalytics`, sends nothing) | — | Firebase project files (owner) |
+| 13 Consent & rewarded ads | UMP + Google Mobile Ads, test units, idempotent rewards | contracts + honest `UnavailableRewardedAds`; editor/dev `TestRewardedAds` | reward idempotence tested at session layer | AdMob app IDs (owner), SDK not yet added |
+| 14 Purchases | Unity IAP, one non-consumable cosmetic, restore | contracts only | — | store products (owner) |
+| 15 Performance & builds | Profiling, repeatable signed builds | build scripts written | — | devices, signing |
+| 16 Release audit | Independent audit | not started | — | 15 |
+| 17 Store package & handover | Store copy, runbooks | not started | — | 16 |
+
+Browser prototype (`index.html`, `src/`) is preserved and is **not** evidence for any native stage.

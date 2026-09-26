@@ -1,0 +1,14 @@
+{
+    "name": "ScrewGame.Core",
+    "rootNamespace": "ScrewGame.Core",
+    "references": ["ScrewGame.Contracts"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}

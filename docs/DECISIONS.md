@@ -1,0 +1,18 @@
+# Decisions
+
+| Date | Decision | Reason |
+| --- | --- | --- |
+| 2026-09-26 | Unity **6000.3.24f1** (6.3 LTS), changeset `4e7b9b5b6244` | Pack baseline 6.3 LTS; exact patch available for Linux with iOS/Android modules at time of install. |
+| 2026-09-26 | Packages pinned to the editor's bundled/verified versions: URP 17.3.0, uGUI 2.0.0 (includes TextMeshPro), Input System 1.20.0, Test Framework 1.6.0, Newtonsoft JSON 3.2.2 | Read from the editor's `Resources/PackageManager/Editor/manifest.json`; no guessed versions. |
+| 2026-09-26 | Input System only (`activeInputHandler = 1`) | Single pinned input path; touch + mouse via `Pointer`. |
+| 2026-09-26 | IL2CPP, ARM64, Android min API 26, iOS min 15.0, portrait only, Linear color | Store-compatible mobile defaults. |
+| 2026-09-26 | Rules/validation/persistence/session/progression are engine-free assemblies (`noEngineReferences`) and are also compiled by `tools/dotnet` for .NET 8 NUnit | Lets rules be verified without a Unity license; single source files, no second implementation. |
+| 2026-09-26 | Native Core is a new implementation, not a port of `src/logic.js` | Browser rules differ from the pack's contract (tray queue, buffer insertion order, loss rule). |
+| 2026-09-26 | UI is built in code (uGUI + TMP) from `GameRoot` rather than prefabs for the prototype | Keeps shared-scene surface to one GameObject; reduces merge/GUID risk while Unity cannot be run here. Revisit for art pass. |
+| 2026-09-26 | Geometry uses Unity primitives with procedural materials; audio synthesized at runtime | Guaranteed-original assets for the prototype. |
+| 2026-09-26 | L10 blockers changed to `door`, `clock_b` | Original design was proved UNSOLVABLE by exhaustive search. |
+| 2026-09-26 | Placeholder app id `com.nyrico.projectscrew.dev`; release builds require `SCREW_BUNDLE_ID` | Pack forbids silently shipping placeholders. |
+| 2026-09-26 | Rewarded ads: release uses `UnavailableRewardedAds` until the AdMob/UMP adapter exists; fake adapter compiled only under `UNITY_EDITOR || DEVELOPMENT_BUILD` | Release excludes fake fulfillment. |
+| 2026-09-26 | Did not accept Unity Hub terms or script Unity licensing on the owner's behalf | Terms (updated 2026-06-30, §17.2) restrict AI agents; legal acceptance belongs to the account owner. |
+| 2026-09-26 | L01–L10 rebuilt as themed objects (gift, cupcake, car, cottage, robot, flower, rocket, windmill, treehouse, castle) with 12–42 screws, 4 visible boxes per level (`TrayPositions=4` in content; rules default unchanged), ContentVersion 2 | Match the owner's shipped App Store games; colors assigned from a constructive play-through and validated by the C# solver. Needs owner confirmation of the 4-box change. |
+| 2026-09-26 | Visual polish pass: URP post-processing (bloom, color grading, vignette) via renderer PostProcessData, inverted-hull cartoon outlines on parts and trays, tray shelf and buffer bar, level badge, round booster buttons with count bubbles, home screen with a live 3D object preview, level grid with stars, win stars and confetti | Owner asked for "even more beautiful design"; references are the owner's shipped screw games. Reduced motion suppresses confetti. |

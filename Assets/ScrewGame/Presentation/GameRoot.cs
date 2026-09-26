@@ -1,0 +1,811 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using ScrewGame.Contracts;
+using ScrewGame.Core;
+using ScrewGame.Persistence;
+using ScrewGame.Progression;
+using ScrewGame.Services;
+using ScrewGame.Session;
+using ScrewGame.Validation;
+using TMPro;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
+
+namespace ScrewGame.Presentation
+{
+    /// <summary>
+    /// Composition root: owns startup order (storage -> profile -> consent -> services -> content -> UI), the only place
+    /// services are constructed, and all screen flow. SDK adapters are never initialized anywhere else.
+    /// </summary>
+    public sealed class GameRoot : MonoBehaviour
+    {
+        public Material LitTemplate;
+        public Material UnlitTemplate;
+        public const float DragThresholdInches = 0.06f;
+        public const float DegreesPerInch = 110f;
+
+        private SaveStore _store;
+        private GameSession _session;
+        private Campaign _campaign;
+        private readonly Dictionary<string, CompiledLevel> _levels = new Dictionary<string, CompiledLevel>();
+        private IRewardedAdService _ads;
+        private LocalAnalytics _analytics;
+        private DeviceHaptics _haptics;
+        private IClock _clock;
+        private SoundBank _sound;
+
+        private Camera _camera;
+        private CameraRig _rig;
+        private BoardView _board;
+        private RectTransform _safe;
+        private RectTransform _screen;
+        private RectTransform _hud;
+        private TextMeshProUGUI _toast;
+        private float _toastUntil;
+        private Button _undoBtn, _hintBtn, _restartBtn;
+        private TextMeshProUGUI _undoCount, _hintCount;
+        private bool _homePreview;
+        private TextMeshProUGUI _levelLabel, _tutorialLabel;
+        private string _highlightScrew;
+        private Task<HintResult> _hintTask;
+        private bool _pointerDown, _dragging, _pointerOverUi;
+        private Vector2 _pressPos, _lastPos;
+        private string _pendingNotice;
+
+        public GameSession Session => _session;
+        public BoardView Board => _board;
+        public Camera MainCamera => _camera;
+        public IReadOnlyDictionary<string, CompiledLevel> Levels => _levels;
+
+        private void Awake()
+        {
+            Application.targetFrameRate = 60;
+            Input.multiTouchEnabled = false;
+            _clock = new SystemClock();
+
+            _store = new SaveStore(new FileDurableStorage(Path.Combine(Application.persistentDataPath, "save")));
+            var profile = _store.Load(out var status);
+            _pendingNotice = status == LoadStatus.RecoveredFromBackup ? "recovered" : status == LoadStatus.CorruptReset ? "reset_notice" : status == LoadStatus.NewerVersionReadOnly ? "readonly_notice" : null;
+
+            Loc.Language = string.IsNullOrEmpty(profile.Settings.Language) ? (Application.systemLanguage == SystemLanguage.French ? "fr" : "en") : profile.Settings.Language;
+
+            // Consent before any collection: analytics stays off until the player opts in.
+            _analytics = new LocalAnalytics();
+            _analytics.SetCollectionEnabled(profile.Consent.AnalyticsAllowed == true);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            _ads = new TestRewardedAds();
+#else
+            _ads = new UnavailableRewardedAds();
+#endif
+            _ads.Load();
+            _haptics = new DeviceHaptics { Enabled = profile.Settings.Haptics };
+
+            LoadContent();
+            _session = new GameSession(_store, profile, new GuidIds(), _campaign);
+            _session.Analytics += (n, p) => _analytics.LogEvent(n, p);
+
+            BuildWorld();
+            BuildUi();
+            _sound = gameObject.AddComponent<SoundBank>();
+            _sound.Enabled = profile.Settings.Sound;
+            ApplySettings();
+            ShowHome();
+            if (_pendingNotice != null) Toast(Loc.T(_pendingNotice), 4f);
+        }
+
+        private void LoadContent()
+        {
+            var entries = new List<CampaignEntry>();
+            foreach (var ta in Resources.LoadAll<TextAsset>("Levels").OrderBy(t => t.name, StringComparer.Ordinal))
+            {
+                var def = LevelJson.Parse(ta.text);
+                var report = LevelValidator.Validate(def);
+                if (!report.IsValid)
+                {
+                    Debug.LogError("Level " + ta.name + " invalid: " + string.Join("; ", report.Errors));
+                    continue;
+                }
+                var level = CompiledLevel.Compile(def);
+                _levels[def.Id] = level;
+                entries.Add(new CampaignEntry { LevelId = def.Id, ObjectId = def.ObjectId, Name = def.Name, Family = def.Family });
+            }
+            _campaign = new Campaign(entries);
+        }
+
+        private void BuildWorld()
+        {
+            var camGo = new GameObject("Main Camera");
+            camGo.tag = "MainCamera";
+            _camera = camGo.AddComponent<Camera>();
+            _camera.clearFlags = CameraClearFlags.SolidColor;
+            _camera.backgroundColor = Palette.Background;
+            _camera.fieldOfView = 38f;
+            _camera.nearClipPlane = 0.1f;
+            _camera.farClipPlane = 60f;
+            camGo.AddComponent<AudioListener>();
+            _rig = camGo.AddComponent<CameraRig>();
+            _rig.Camera = _camera;
+
+            var lightGo = new GameObject("Key Light");
+            var light = lightGo.AddComponent<Light>();
+            light.type = LightType.Directional;
+            light.intensity = 1.25f;
+            light.color = new Color(1f, 0.98f, 0.94f);
+            light.shadows = LightShadows.Soft;
+            light.shadowStrength = 0.4f;
+            lightGo.transform.rotation = Quaternion.Euler(52f, -35f, 0f);
+            var rimGo = new GameObject("Rim Light");
+            var rim = rimGo.AddComponent<Light>();
+            rim.type = LightType.Directional;
+            rim.intensity = 0.55f;
+            rim.color = new Color(0.8f, 0.9f, 1f);
+            rim.shadows = LightShadows.None;
+            rimGo.transform.rotation = Quaternion.Euler(25f, 150f, 0f);
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = new Color(0.92f, 0.96f, 1f);
+            RenderSettings.ambientEquatorColor = new Color(0.72f, 0.80f, 0.88f);
+            RenderSettings.ambientGroundColor = new Color(0.50f, 0.56f, 0.66f);
+
+            var boardGo = new GameObject("Board");
+            _board = boardGo.AddComponent<BoardView>();
+            _board.TrayAnchor = camGo.transform;
+            BuildBackdrop(camGo.transform);
+            BuildPostFx();
+
+            if (LitTemplate == null)
+            {
+                var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
+                LitTemplate = new Material(shader);
+            }
+        }
+
+        private void BuildPostFx()
+        {
+            var cd = _camera.GetUniversalAdditionalCameraData();
+            cd.renderPostProcessing = true;
+            var profile = ScriptableObject.CreateInstance<VolumeProfile>();
+            var bloom = profile.Add<Bloom>(true);
+            bloom.threshold.value = 0.92f;
+            bloom.intensity.value = 0.45f;
+            bloom.scatter.value = 0.62f;
+            var grade = profile.Add<ColorAdjustments>(true);
+            grade.saturation.value = 12f;
+            grade.contrast.value = 8f;
+            var vignette = profile.Add<Vignette>(true);
+            vignette.intensity.value = 0.18f;
+            vignette.smoothness.value = 0.55f;
+            var volume = new GameObject("PostFx").AddComponent<Volume>();
+            volume.isGlobal = true;
+            volume.sharedProfile = profile;
+        }
+
+        private void BuildBackdrop(Transform cam)
+        {
+            const int w = 256, h = 512;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            var px = new Color[w * h];
+            for (int y = 0; y < h; y++)
+            {
+                float k = y / (h - 1f);
+                var c = k > 0.5f ? Color.Lerp(Palette.Background, Palette.BackgroundTop, (k - 0.5f) / 0.5f) : Color.Lerp(Palette.BackgroundBottom, Palette.Background, k / 0.5f);
+                for (int x = 0; x < w; x++) px[y * w + x] = c;
+            }
+            float[] cloudX = { 0.18f, 0.82f, 0.55f, 0.08f, 0.95f };
+            float[] cloudY = { 0.80f, 0.70f, 0.93f, 0.52f, 0.45f };
+            float[] cloudS = { 1f, 1.2f, 0.7f, 0.8f, 0.9f };
+            for (int c = 0; c < cloudX.Length; c++)
+            for (int puff = 0; puff < 5; puff++)
+            {
+                float pr = (puff == 2 ? 26f : puff % 2 == 0 ? 17f : 21f) * cloudS[c];
+                float pcx = cloudX[c] * w + (puff - 2) * 17f * cloudS[c];
+                float pcy = cloudY[c] * h + (puff == 2 ? 10f : puff % 2 == 1 ? 5f : 0f) * cloudS[c];
+                for (int y = Mathf.Max(0, (int)(pcy - pr)); y < Mathf.Min(h, (int)(pcy + pr) + 1); y++)
+                for (int x = Mathf.Max(0, (int)(pcx - pr)); x < Mathf.Min(w, (int)(pcx + pr) + 1); x++)
+                {
+                    float d = Mathf.Sqrt((x - pcx) * (x - pcx) + (y - pcy) * (y - pcy)) / pr;
+                    if (d > 1f || y < cloudY[c] * h - 6f * cloudS[c]) continue;
+                    int idx = y * w + x;
+                    var cloud = Color.Lerp(Color.white, new Color(0.86f, 0.93f, 1f), Mathf.Clamp01((cloudY[c] * h + pr - y) / (2f * pr)) * 0.5f);
+                    px[idx] = Color.Lerp(px[idx], cloud, Mathf.Clamp01((1f - d) * 6f) * 0.92f);
+                }
+            }
+            for (int x = 0; x < w; x++)
+            {
+                float fx = x / (float)w;
+                int far = (int)(h * (0.22f + 0.035f * Mathf.Sin(fx * 7.5f + 1.2f) + 0.02f * Mathf.Sin(fx * 17f)));
+                int near = (int)(h * (0.14f + 0.04f * Mathf.Sin(fx * 5f + 3.5f)));
+                for (int y = 0; y < Mathf.Min(h, far); y++)
+                {
+                    int idx = y * w + x;
+                    if (y < near) px[idx] = Color.Lerp(Palette.Hill * 0.82f, Palette.Hill, y / (float)Mathf.Max(1, near));
+                    else px[idx] = Color.Lerp(Palette.HillFar, Palette.HillFar * 0.93f, (far - y) / 40f);
+                    px[idx].a = 1f;
+                }
+            }
+            tex.SetPixels(px);
+            tex.Apply();
+            var shader = UnlitTemplate != null ? UnlitTemplate.shader : Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null) return;
+            var mat = new Material(shader);
+            if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", tex);
+            mat.mainTexture = tex;
+            var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            quad.name = "Backdrop";
+            Destroy(quad.GetComponent<Collider>());
+            quad.transform.SetParent(cam, false);
+            quad.transform.localPosition = new Vector3(0f, 0f, 55f);
+            quad.transform.localScale = new Vector3(27f, 50f, 1f);
+            var r = quad.GetComponent<Renderer>();
+            r.sharedMaterial = mat;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
+        }
+
+        private float SafeY(float f)
+        {
+            var sa = Screen.safeArea;
+            return Screen.height > 0 ? (sa.yMin + f * sa.height) / Screen.height : f;
+        }
+
+        private void LateUpdate()
+        {
+            if (_homePreview && _rig != null)
+            {
+                _rig.RegionBottom = SafeY(0.36f);
+                _rig.RegionTop = SafeY(0.74f);
+                _rig.Yaw = -152f + Mathf.Sin(Time.unscaledTime * 0.5f) * 28f;
+                _rig.Apply();
+                return;
+            }
+            if (_hud == null || _rig == null) return;
+            _rig.RegionBottom = SafeY(0.15f);
+            _rig.RegionTop = SafeY(0.64f);
+            _rig.Apply();
+            _board.LayoutHolding(_camera, SafeY(0.62f), SafeY(0.885f));
+        }
+
+        private void BuildUi()
+        {
+            if (FindFirstObjectByType<EventSystem>() == null)
+            {
+                var es = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
+                DontDestroyOnLoad(es);
+            }
+            var canvasGo = new GameObject("Canvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+            var canvas = canvasGo.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            var scaler = canvasGo.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080f, 1920f);
+            scaler.matchWidthOrHeight = 0.5f;
+            _safe = UiKit.Empty(canvasGo.transform, "SafeArea");
+            _safe.gameObject.AddComponent<SafeArea>();
+
+            var toastRt = UiKit.Panel(_safe, "Toast", new Color(0.05f, 0.08f, 0.13f, 0.88f));
+            UiKit.Round(toastRt.GetComponent<Image>());
+            UiKit.Place(toastRt, new Vector2(0.06f, 0.52f), new Vector2(0.94f, 0.58f));
+            _toast = UiKit.Label(toastRt, "", 36f);
+            _toast.color = Color.white;
+            toastRt.gameObject.SetActive(false);
+            toastRt.GetComponent<Image>().raycastTarget = false;
+        }
+
+        // ---------------------------------------------------------------- screens
+
+        private RectTransform NewScreen(bool opaque)
+        {
+            if (_screen != null) Destroy(_screen.gameObject);
+            if (_hud != null) { Destroy(_hud.gameObject); _hud = null; }
+            _homePreview = false;
+            _screen = UiKit.Panel(_safe, "Screen", opaque ? new Color(0.05f, 0.25f, 0.55f, 0.28f) : new Color(0, 0, 0, 0));
+            _screen.SetAsFirstSibling();
+            return _screen;
+        }
+
+        private void ShowHome()
+        {
+            _board.Clear();
+            var s = NewScreen(false);
+            s.GetComponent<Image>().raycastTarget = false;
+            var cur = _campaign.Current(_session.Profile);
+            var previewId = cur != null ? cur.LevelId : _campaign.Entries.Count > 0 ? _campaign.Entries[_campaign.Entries.Count - 1].LevelId : null;
+            if (previewId != null && _levels.TryGetValue(previewId, out var preview))
+            {
+                _board.Build(preview, LitTemplate);
+                _board.SetHoldingVisible(false);
+                _rig.Configure(preview.Definition.Camera, _board.ObjectBounds);
+                _board.Rebuild(Rules.CreateInitial(preview));
+                _homePreview = true;
+            }
+
+            var titleRt = UiKit.Empty(s, "Title");
+            UiKit.Place(titleRt, new Vector2(0.04f, 0.77f), new Vector2(0.96f, 0.95f));
+            titleRt.localRotation = Quaternion.Euler(0f, 0f, 3f);
+            var title = UiKit.Label(titleRt, Loc.T("title").ToUpperInvariant(), 118f);
+            title.fontStyle = FontStyles.Bold;
+            title.enableVertexGradient = true;
+            title.colorGradient = new VertexGradient(Color.white, Color.white, Palette.Gold, Palette.Primary);
+            title.outlineWidth = 0.3f;
+            title.characterSpacing = 4f;
+            for (int i = 0; i < 3; i++)
+            {
+                var star = UiKit.StarImage(s, Palette.Gold);
+                var rt = (RectTransform)star.transform;
+                float x = 0.2f + i * 0.3f;
+                UiKit.Place(rt, new Vector2(x - 0.05f, 0.735f + (i == 1 ? 0.012f : 0f)), new Vector2(x + 0.05f, 0.79f + (i == 1 ? 0.012f : 0f)));
+                rt.localRotation = Quaternion.Euler(0f, 0f, (i - 1) * -14f);
+            }
+
+            var menu = UiKit.Empty(s, "Menu");
+            UiKit.Place(menu, new Vector2(0.08f, 0.04f), new Vector2(0.92f, 0.34f));
+            UiKit.Column(menu, 26f, 0);
+            var play = UiKit.Button(menu, cur != null ? Loc.T("play").ToUpperInvariant() + "\n<size=40>" + Loc.F("level", _campaign.IndexOf(cur.LevelId) + 1) + "</size>" : Loc.T("levels"),
+                () => { if (cur != null) StartLevel(cur.LevelId, false, ""); else ShowLevels(); }, Palette.Primary, 76f);
+            play.GetComponent<LayoutElement>().preferredHeight = 210f;
+            play.gameObject.AddComponent<Pulse>();
+            var grid = UiKit.Empty(menu, "Grid");
+            var gle = grid.gameObject.AddComponent<LayoutElement>();
+            gle.preferredHeight = 260f;
+            var g = grid.gameObject.AddComponent<GridLayoutGroup>();
+            g.cellSize = new Vector2(430f, 115f);
+            g.spacing = new Vector2(26f, 26f);
+            g.childAlignment = TextAnchor.MiddleCenter;
+            g.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            g.constraintCount = 2;
+            UiKit.Button(grid, Loc.T("levels"), ShowLevels, Palette.Accent, 40f);
+            var today = DailyChallenge.DateKey(_clock.UtcNow);
+            var dailyBtn = UiKit.Button(grid, DailyChallenge.IsCompleted(_session.Profile, today) ? Loc.T("daily_done") : Loc.T("daily"), () => StartDaily(today), Palette.Badge, 40f);
+            dailyBtn.interactable = !DailyChallenge.IsCompleted(_session.Profile, today) && _session.Profile.Progress.CompletedLevels.Count >= 3;
+            UiKit.Button(grid, Loc.T("collection"), ShowCollection, Palette.Secondary, 40f);
+            UiKit.Button(grid, Loc.T("settings"), ShowSettings, Palette.BufferBar, 40f);
+        }
+
+        private void ShowLevels()
+        {
+            _board.Clear();
+            var s = NewScreen(true);
+            UiKit.Column(s, 24f, 60);
+            UiKit.Heading(s, Loc.T("levels").ToUpperInvariant(), 88f, 180f).fontStyle = FontStyles.Bold;
+            var grid = UiKit.Empty(s, "Grid");
+            grid.gameObject.AddComponent<LayoutElement>().preferredHeight = 4 * 300f;
+            var g = grid.gameObject.AddComponent<GridLayoutGroup>();
+            g.cellSize = new Vector2(270f, 270f);
+            g.spacing = new Vector2(34f, 30f);
+            g.childAlignment = TextAnchor.UpperCenter;
+            g.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            g.constraintCount = 3;
+            for (int i = 0; i < _campaign.Entries.Count; i++)
+            {
+                var e = _campaign.Entries[i];
+                bool unlocked = _campaign.IsUnlocked(_session.Profile, e.LevelId);
+                bool done = _campaign.IsCompleted(_session.Profile, e.LevelId);
+                var id = e.LevelId;
+                var color = done ? Palette.Secondary : unlocked ? Palette.Primary : new Color(0.62f, 0.68f, 0.76f);
+                var b = UiKit.Button(grid, "<size=96>" + (i + 1) + "</size>\n<size=30>" + (unlocked ? e.Name : Loc.T("locked")) + "</size>", () => StartLevel(id, false, ""), color, 40f);
+                b.interactable = unlocked;
+                UiKit.Round(b.GetComponent<Image>(), 1.6f);
+                if (done)
+                {
+                    var star = (RectTransform)UiKit.StarImage(b.transform, Palette.Gold).transform;
+                    star.anchorMin = star.anchorMax = new Vector2(1f, 1f);
+                    star.sizeDelta = new Vector2(90f, 90f);
+                    star.anchoredPosition = new Vector2(-18f, -18f);
+                    star.localRotation = Quaternion.Euler(0f, 0f, -12f);
+                }
+            }
+            UiKit.Button(s, Loc.T("back"), ShowHome, Palette.Accent);
+        }
+
+        private void ShowCollection()
+        {
+            _board.Clear();
+            var s = NewScreen(true);
+            UiKit.Column(s, 16f, 60);
+            var p = _session.Profile;
+            UiKit.Heading(s, Loc.T("collection"), 72f, 160f);
+            UiKit.Heading(s, Loc.F("collected", p.Progress.CollectedObjects.Count, _campaign.Entries.Count), 40f, 80f);
+            foreach (var family in _campaign.Entries.GroupBy(e => e.Family))
+            {
+                UiKit.Heading(s, family.Key, 42f, 70f);
+                foreach (var e in family)
+                {
+                    bool owned = p.Progress.CollectedObjects.Contains(e.ObjectId);
+                    UiKit.Heading(s, owned ? e.Name : "?  ?  ?", 34f, 56f).color = owned ? Palette.Ink : new Color(0.5f, 0.5f, 0.5f);
+                }
+            }
+            UiKit.Button(s, Loc.T("back"), ShowHome);
+        }
+
+        private void ShowSettings()
+        {
+            _board.Clear();
+            var s = NewScreen(true);
+            UiKit.Column(s, 20f, 80);
+            UiKit.Heading(s, Loc.T("settings"), 72f, 180f);
+            var st = _session.Profile.Settings;
+            Toggle(s, "sound", () => st.Sound, v => st.Sound = v);
+            Toggle(s, "haptics", () => st.Haptics, v => st.Haptics = v);
+            Toggle(s, "reduced_motion", () => st.ReducedMotion, v => st.ReducedMotion = v);
+            Toggle(s, "symbols", () => st.ColorSymbols, v => st.ColorSymbols = v);
+            UiKit.Button(s, Loc.T("language") + ": " + (Loc.Language == "fr" ? "Français" : "English"), () =>
+            {
+                var next = Loc.Language == "fr" ? "en" : "fr";
+                _session.SaveProfile(p => p.Settings.Language = next);
+                Loc.Language = next;
+                ShowSettings();
+            });
+            var consent = _session.Profile.Consent.AnalyticsAllowed == true;
+            UiKit.Button(s, Loc.T("privacy") + ": " + (consent ? Loc.T("on") : Loc.T("off")), () =>
+            {
+                _session.SaveProfile(p => p.Consent.AnalyticsAllowed = !consent);
+                _analytics.SetCollectionEnabled(!consent);
+                ShowSettings();
+            });
+            UiKit.Button(s, Loc.T("back"), ShowHome);
+        }
+
+        private void Toggle(RectTransform parent, string key, Func<bool> get, Action<bool> set)
+        {
+            UiKit.Button(parent, Loc.T(key) + ": " + (get() ? Loc.T("on") : Loc.T("off")), () =>
+            {
+                bool v = !get();
+                if (!_session.SaveProfile(_ => set(v))) Toast(Loc.T("save_failed"));
+                ApplySettings();
+                ShowSettings();
+            });
+        }
+
+        private void ApplySettings()
+        {
+            var st = _session.Profile.Settings;
+            _board.ReducedMotion = st.ReducedMotion;
+            _haptics.Enabled = st.Haptics;
+            if (_sound != null) _sound.Enabled = st.Sound;
+            _board.ShowSymbols = st.ColorSymbols;
+        }
+
+        // ---------------------------------------------------------------- gameplay
+
+        private void StartDaily(string dateKey)
+        {
+            var pool = _campaign.Entries.Skip(2).Select(e => e.LevelId).ToList();
+            string id = null;
+            _session.SaveProfile(p => id = DailyChallenge.Resolve(p, dateKey, pool, 1));
+            if (id != null) StartLevel(id, true, dateKey);
+        }
+
+        public void StartLevel(string levelId, bool daily, string dateKey)
+        {
+            var level = _levels[levelId];
+            var kind = _session.Start(level, daily, dateKey);
+            _board.Build(level, LitTemplate);
+            _board.ShowSymbols = _session.Profile.Settings.ColorSymbols;
+            _rig.Configure(level.Definition.Camera, _board.ObjectBounds);
+            LateUpdate();
+            _board.Rebuild(_session.Engine.State);
+            BuildHud(level, daily);
+            _analytics.LogEvent("level_view", new Dictionary<string, object> { ["level_id"] = levelId, ["resumed"] = kind == StartKind.Resumed });
+            if (kind == StartKind.ReplacedIncompatible) Toast(Loc.T("replaced_notice"), 3f);
+            ShowTutorialFor(level);
+            RefreshHud();
+            if (_session.Engine.Outcome == Outcome.Lost) ShowStuck();
+        }
+
+        private void BuildHud(CompiledLevel level, bool daily)
+        {
+            var s = NewScreen(false);
+            s.GetComponent<Image>().raycastTarget = false;
+            _hud = UiKit.Empty(_safe, "Hud");
+            var top = UiKit.Empty(_hud, "Top");
+            UiKit.Place(top, new Vector2(0f, 0.905f), new Vector2(1f, 1f), new Vector2(28f, 8f), new Vector2(-28f, -16f));
+            var menu = UiKit.Button(top, "II", () => { CancelHint(); ShowHome(); }, Palette.Accent, 44f);
+            UiKit.Place((RectTransform)menu.transform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, -55f), new Vector2(110f, 55f));
+            var badge = UiKit.Panel(top, "Badge", Palette.Primary);
+            UiKit.Round(badge.GetComponent<Image>(), 1.6f);
+            badge.GetComponent<Image>().raycastTarget = false;
+            UiKit.Place(badge, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(-230f, -62f), new Vector2(230f, 62f));
+            var badgeRim = badge.gameObject.AddComponent<Outline>();
+            badgeRim.effectColor = Color.white;
+            badgeRim.effectDistance = new Vector2(5f, -5f);
+            var badgeShadow = badge.gameObject.AddComponent<Shadow>();
+            badgeShadow.effectColor = new Color(0f, 0f, 0f, 0.3f);
+            badgeShadow.effectDistance = new Vector2(0f, -10f);
+            string title = daily ? Loc.T("daily") : Loc.F("level", _campaign.IndexOf(level.Definition.Id) + 1).ToUpperInvariant();
+            _levelLabel = UiKit.Label(badge, title, 62f);
+            _levelLabel.fontStyle = TMPro.FontStyles.Bold;
+            _levelLabel.outlineWidth = 0.25f;
+            _levelLabel.outlineColor = Palette.Outline;
+            var nameRt = UiKit.Empty(top, "Name");
+            UiKit.Place(nameRt, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(-300f, -46f), new Vector2(300f, 2f));
+            UiKit.Label(nameRt, level.Definition.Name, 34f).fontStyle = TMPro.FontStyles.Bold;
+
+            var tut = UiKit.Empty(_hud, "Tutorial");
+            UiKit.Place(tut, new Vector2(0.05f, 0.105f), new Vector2(0.95f, 0.145f));
+            _tutorialLabel = UiKit.Label(tut, "", 34f);
+
+            var bottom = UiKit.Empty(_hud, "Bottom");
+            UiKit.Place(bottom, new Vector2(0f, 0f), new Vector2(1f, 0.1f), new Vector2(60f, 14f), new Vector2(-60f, 0f));
+            UiKit.Row(bottom, 40f);
+            _undoBtn = UiKit.Booster(bottom, Loc.T("undo"), OnUndo, Palette.Accent, out _undoCount);
+            _hintBtn = UiKit.Booster(bottom, Loc.T("hint"), OnHint, Palette.Secondary, out _hintCount);
+            _restartBtn = UiKit.Booster(bottom, Loc.T("restart"), OnRestart, Palette.Primary, out var restartCount);
+            restartCount.transform.parent.gameObject.SetActive(false);
+            _hud.SetSiblingIndex(1);
+        }
+
+        private void ShowTutorialFor(CompiledLevel level)
+        {
+            int idx = _campaign.IndexOf(level.Definition.Id);
+            var t = _session.Profile.Tutorial;
+            if (_tutorialLabel == null) return;
+            if (idx >= 0 && idx < 4 && !t.Completed)
+            {
+                _tutorialLabel.text = Loc.T("tut_" + (idx + 1));
+                if (t.Step < idx + 1) _session.SaveProfile(p => { p.Tutorial.Step = idx + 1; p.Tutorial.Completed = idx == 3; });
+            }
+            else _tutorialLabel.text = "";
+        }
+
+        private void RefreshHud()
+        {
+            if (_hud == null || _session.Engine == null) return;
+            var h = _session.Help;
+            bool open = !_session.Attempt.Closed;
+            int undo = h.Available(HelpKind.Undo), hint = h.Available(HelpKind.Hint);
+            _undoCount.text = undo.ToString();
+            _hintCount.text = hint.ToString();
+            UiKit.SetText(_hintBtn, _hintTask != null ? "..." : Loc.T("hint"));
+            _undoBtn.interactable = open && _session.Engine.UndoDepth > 0;
+            _hintBtn.interactable = open && _hintTask == null;
+            _restartBtn.interactable = true;
+        }
+
+        private void OnUndo()
+        {
+            CancelHint();
+            if (_session.Help.Available(HelpKind.Undo) == 0) { OfferReward(); return; }
+            var r = _session.Undo(_session.Engine.Revision);
+            HandleResult(r);
+        }
+
+        private void OnHint()
+        {
+            if (_hintTask != null) return;
+            if (!_session.CanRequestHint) { OfferReward(); return; }
+            var level = _session.Level;
+            var st = _session.Engine.State.Clone();
+            var attempt = _session.Attempt.AttemptId;
+            var rev = _session.Engine.Revision;
+            _hintTask = Task.Run(() => HintService.Compute(level, st, attempt, rev));
+            RefreshHud();
+        }
+
+        private void CancelHint()
+        {
+            _hintTask = null;
+            _highlightScrew = null;
+            _board.Highlight(null);
+        }
+
+        private void PollHint()
+        {
+            if (_hintTask == null || !_hintTask.IsCompleted) return;
+            var t = _hintTask;
+            _hintTask = null;
+            if (t.IsFaulted) { Toast(Loc.T("hint_unknown")); RefreshHud(); return; }
+            var h = t.Result;
+            if (h.Status == HintStatus.Suggested)
+            {
+                if (_session.ApplyHint(h))
+                {
+                    _highlightScrew = h.ScrewId;
+                    _board.Highlight(h.ScrewId);
+                    _sound.Play(SoundBank.Cue.Hint);
+                }
+            }
+            else if (h.Status == HintStatus.Unsolvable) Toast(Loc.T("hint_none"));
+            else Toast(Loc.T("hint_unknown"));
+            RefreshHud();
+        }
+
+        private void OnRestart()
+        {
+            CancelHint();
+            CloseOverlay();
+            var r = _session.Restart();
+            if (!r.Accepted) { Toast(Loc.T("save_failed")); return; }
+            _board.Rebuild(_session.Engine.State);
+            RefreshHud();
+        }
+
+        private void OfferReward()
+        {
+            if (_ads.Availability != AdAvailability.Ready) { Toast(Loc.T("no_help") + " " + Loc.T("ads_unavailable"), 3f); return; }
+            var op = "reward-" + Guid.NewGuid().ToString("N");
+            var attempt = _session.Attempt.AttemptId;
+            _ads.Show(op, (id, result) =>
+            {
+                if (result != AdShowResult.Earned) { Toast(Loc.T("ads_unavailable")); return; }
+                if (_session.GrantReward(id)) Toast(Loc.T("ad_granted") + (_ads.IsTestAdapter ? " (test)" : ""));
+                RefreshHud();
+            });
+        }
+
+        private void TryRemove(string screwId)
+        {
+            if (_session.Attempt.Closed) return;
+            CancelHint();
+            var r = _session.Remove(screwId, _session.Engine.Revision);
+            HandleResult(r);
+        }
+
+        private void HandleResult(CommandResult r)
+        {
+            if (!r.Accepted)
+            {
+                switch (r.Reason)
+                {
+                    case RejectReason.Blocked: Toast(Loc.T("blocked")); _haptics.Play(HapticKind.Error); _sound.Play(SoundBank.Cue.Error); break;
+                    case RejectReason.NoDestination: Toast(Loc.T("full")); _haptics.Play(HapticKind.Error); _sound.Play(SoundBank.Cue.Error); break;
+                    case RejectReason.SaveFailed: Toast(Loc.T("save_failed"), 3f); break;
+                }
+                RefreshHud();
+                return;
+            }
+            bool replaced = r.Events.Any(e => e is StateReplacedEvent);
+            if (replaced) _board.Rebuild(_session.Engine.State);
+            else _board.Play(r.Events, _session.Engine.State);
+            _sound.Play(r.Events.Any(e => e is TrayCompletedEvent) ? SoundBank.Cue.Complete : SoundBank.Cue.Unscrew);
+            _haptics.Play(HapticKind.Selection);
+            RefreshHud();
+            if (_session.Engine.Outcome == Outcome.Won) Invoke(nameof(ShowWin), _board.ReducedMotion ? 0.2f : 0.9f);
+            else if (_session.Engine.Outcome == Outcome.Lost) Invoke(nameof(ShowStuck), 0.5f);
+            else CloseOverlay();
+        }
+
+        private RectTransform _overlay;
+
+        private void CloseOverlay()
+        {
+            if (_overlay != null) Destroy(_overlay.gameObject);
+            _overlay = null;
+        }
+
+        private RectTransform Overlay()
+        {
+            CloseOverlay();
+            _overlay = UiKit.Panel(_safe, "Overlay", new Color(0f, 0f, 0f, 0.45f));
+            var card = UiKit.Panel(_overlay, "Card", Palette.Card);
+            UiKit.Round(card.GetComponent<Image>());
+            UiKit.Place(card, new Vector2(0.08f, 0.3f), new Vector2(0.92f, 0.7f));
+            UiKit.Column(card, 22f, 50);
+            return card;
+        }
+
+        private void ShowWin()
+        {
+            if (_session.Engine?.Outcome != Outcome.Won) return;
+            _sound.Play(SoundBank.Cue.Win);
+            _haptics.Play(HapticKind.Success);
+            var def = _session.Level.Definition;
+            var card = Overlay();
+            var stars = UiKit.Empty(card, "Stars");
+            stars.gameObject.AddComponent<LayoutElement>().preferredHeight = 150f;
+            for (int i = 0; i < 3; i++)
+            {
+                var st = (RectTransform)UiKit.StarImage(stars, Palette.Gold).transform;
+                st.anchorMin = st.anchorMax = new Vector2(0.5f, 0.5f);
+                float big = i == 1 ? 170f : 125f;
+                st.sizeDelta = new Vector2(big, big);
+                st.anchoredPosition = new Vector2((i - 1) * 160f, i == 1 ? 30f : 0f);
+                st.localRotation = Quaternion.Euler(0f, 0f, (i - 1) * -15f);
+                st.gameObject.AddComponent<PopIn>().Delay = 0.15f + i * 0.18f;
+            }
+            UiKit.Heading(card, Loc.T("won"), 70f, 110f).fontStyle = FontStyles.Bold;
+            UiKit.Heading(card, Loc.F("won_body", def.Name), 38f, 100f);
+            var next = _session.Attempt.IsDaily ? null : _campaign.Next(def.Id);
+            if (next != null) UiKit.Button(card, Loc.T("next"), () => { CloseOverlay(); StartLevel(next.LevelId, false, ""); }, Palette.Primary, 48f);
+            UiKit.Button(card, Loc.T("menu"), () => { CloseOverlay(); ShowHome(); });
+            if (!_board.ReducedMotion) Confetti.Burst(_overlay, 110);
+        }
+
+        private void ShowStuck()
+        {
+            if (_session.Engine?.Outcome != Outcome.Lost) return;
+            var card = Overlay();
+            UiKit.Heading(card, Loc.T("stuck"), 60f, 110f);
+            UiKit.Heading(card, Loc.T("stuck_body"), 36f, 120f);
+            if (_session.Engine.UndoDepth > 0)
+                UiKit.Button(card, Loc.T("undo") + " (" + _session.Help.Available(HelpKind.Undo) + ")", () => { CloseOverlay(); OnUndo(); });
+            UiKit.Button(card, Loc.T("restart"), OnRestart, Palette.Primary);
+            if (_ads.Availability == AdAvailability.Ready) UiKit.Button(card, Loc.T("watch_ad"), OfferReward);
+        }
+
+        private void Toast(string text, float seconds = 2f)
+        {
+            _toast.text = text;
+            _toast.transform.parent.gameObject.SetActive(true);
+            _toastUntil = Time.unscaledTime + seconds;
+        }
+
+        // ---------------------------------------------------------------- input
+
+        private void Update()
+        {
+            if (_toast != null && _toast.transform.parent.gameObject.activeSelf && Time.unscaledTime > _toastUntil)
+                _toast.transform.parent.gameObject.SetActive(false);
+            PollHint();
+            if (_hud == null || _session.Engine == null || _overlay != null) { _pointerDown = false; return; }
+
+            var pointer = Pointer.current;
+            if (pointer == null) return;
+            var press = pointer.press;
+            var pos = pointer.position.ReadValue();
+            if (press.wasPressedThisFrame)
+            {
+                _pointerDown = true;
+                _dragging = false;
+                _pressPos = _lastPos = pos;
+                _pointerOverUi = EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(pointer.deviceId) || OverUi(pos);
+            }
+            if (!_pointerDown) return;
+            float dpi = Screen.dpi > 0 ? Screen.dpi : 160f;
+            if (press.isPressed)
+            {
+                if (!_dragging && !_pointerOverUi && (pos - _pressPos).magnitude > DragThresholdInches * dpi) _dragging = true;
+                if (_dragging) _rig.Rotate((pos - _lastPos) / dpi * DegreesPerInch);
+                _lastPos = pos;
+            }
+            if (press.wasReleasedThisFrame)
+            {
+                _pointerDown = false;
+                if (!_dragging && !_pointerOverUi) Pick(pos);
+            }
+        }
+
+        private static readonly List<RaycastResult> UiHits = new List<RaycastResult>();
+
+        private static bool OverUi(Vector2 pos)
+        {
+            if (EventSystem.current == null) return false;
+            UiHits.Clear();
+            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current) { position = pos }, UiHits);
+            return UiHits.Count > 0;
+        }
+
+        /// <summary>Nearest-hit picking: a screw behind a visible part is never selected.</summary>
+        public void Pick(Vector2 screenPos)
+        {
+            var ray = _camera.ScreenPointToRay(screenPos);
+            if (!Physics.Raycast(ray, out var hit, 100f)) return;
+            var sv = hit.collider.GetComponent<ScrewView>();
+            if (sv != null) { TryRemove(sv.ScrewId); return; }
+            // A part was hit first; tell the player if a screw is hidden right behind it.
+            var hits = Physics.RaycastAll(ray, 100f).OrderBy(h => h.distance);
+            foreach (var h in hits)
+            {
+                if (h.collider.GetComponent<ScrewView>() != null) { Toast(Loc.T("hidden")); return; }
+            }
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            // Every accepted command is already durable. On resume, snap to the settled state.
+            if (!paused && _session?.Engine != null && _hud != null) _board.Rebuild(_session.Engine.State);
+            if (paused) CancelHint();
+        }
+
+        private void OnApplicationFocus(bool focus)
+        {
+            if (focus && _session?.Engine != null && _hud != null && !_board.IsAnimating) _board.Rebuild(_session.Engine.State);
+        }
+    }
+}

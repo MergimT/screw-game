@@ -1,0 +1,14 @@
+{
+    "name": "ScrewGame.Validation",
+    "rootNamespace": "ScrewGame.Validation",
+    "references": ["ScrewGame.Contracts", "ScrewGame.Core"],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
