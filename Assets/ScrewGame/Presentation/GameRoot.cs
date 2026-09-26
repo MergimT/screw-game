@@ -133,22 +133,22 @@ namespace ScrewGame.Presentation
             var lightGo = new GameObject("Key Light");
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Directional;
-            light.intensity = 1.35f;
-            light.color = new Color(1f, 0.97f, 0.92f);
+            light.intensity = 1.25f;
+            light.color = new Color(1f, 0.98f, 0.94f);
             light.shadows = LightShadows.Soft;
-            light.shadowStrength = 0.55f;
+            light.shadowStrength = 0.4f;
             lightGo.transform.rotation = Quaternion.Euler(52f, -35f, 0f);
             var rimGo = new GameObject("Rim Light");
             var rim = rimGo.AddComponent<Light>();
             rim.type = LightType.Directional;
-            rim.intensity = 0.45f;
-            rim.color = new Color(0.75f, 0.85f, 1f);
+            rim.intensity = 0.55f;
+            rim.color = new Color(0.8f, 0.9f, 1f);
             rim.shadows = LightShadows.None;
             rimGo.transform.rotation = Quaternion.Euler(25f, 150f, 0f);
             RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = new Color(0.78f, 0.80f, 0.85f);
-            RenderSettings.ambientEquatorColor = new Color(0.50f, 0.52f, 0.58f);
-            RenderSettings.ambientGroundColor = new Color(0.23f, 0.29f, 0.37f);
+            RenderSettings.ambientSkyColor = new Color(0.92f, 0.96f, 1f);
+            RenderSettings.ambientEquatorColor = new Color(0.72f, 0.80f, 0.88f);
+            RenderSettings.ambientGroundColor = new Color(0.50f, 0.56f, 0.66f);
 
             var boardGo = new GameObject("Board");
             _board = boardGo.AddComponent<BoardView>();
@@ -164,14 +164,31 @@ namespace ScrewGame.Presentation
 
         private void BuildBackdrop(Transform cam)
         {
-            var tex = new Texture2D(2, 128, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
-            for (int y = 0; y < 128; y++)
+            const int w = 256, h = 512;
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            var px = new Color[w * h];
+            for (int y = 0; y < h; y++)
             {
-                float k = y / 127f;
-                var c = k > 0.55f ? Color.Lerp(Palette.Background, Palette.BackgroundTop, (k - 0.55f) / 0.45f) : Color.Lerp(Palette.BackgroundBottom, Palette.Background, k / 0.55f);
-                tex.SetPixel(0, y, c);
-                tex.SetPixel(1, y, c);
+                float k = y / (h - 1f);
+                var c = k > 0.5f ? Color.Lerp(Palette.Background, Palette.BackgroundTop, (k - 0.5f) / 0.5f) : Color.Lerp(Palette.BackgroundBottom, Palette.Background, k / 0.5f);
+                for (int x = 0; x < w; x++) px[y * w + x] = c;
             }
+            var rng = new System.Random(7);
+            for (int i = 0; i < 26; i++)
+            {
+                float cx = (float)rng.NextDouble() * w, cy = (float)rng.NextDouble() * h, sr = 4f + (float)rng.NextDouble() * 7f;
+                float alpha = i < 8 ? 0.55f : 0.18f;
+                for (int y = Mathf.Max(0, (int)(cy - sr)); y < Mathf.Min(h, (int)(cy + sr) + 1); y++)
+                for (int x = Mathf.Max(0, (int)(cx - sr)); x < Mathf.Min(w, (int)(cx + sr) + 1); x++)
+                {
+                    float dx = Mathf.Abs(x - cx) / sr, dy = Mathf.Abs(y - cy) / sr;
+                    float star = Mathf.Clamp01(1f - (Mathf.Sqrt(dx) + Mathf.Sqrt(dy)));
+                    if (star <= 0f) continue;
+                    int idx = y * w + x;
+                    px[idx] = Color.Lerp(px[idx], Color.white, star * 3f * alpha > 1f ? alpha : star * 3f * alpha);
+                }
+            }
+            tex.SetPixels(px);
             tex.Apply();
             var shader = UnlitTemplate != null ? UnlitTemplate.shader : Shader.Find("Universal Render Pipeline/Unlit");
             if (shader == null) return;
@@ -200,7 +217,7 @@ namespace ScrewGame.Presentation
         {
             if (_hud == null || _rig == null) return;
             _rig.RegionBottom = SafeY(0.13f);
-            _rig.RegionTop = SafeY(0.60f);
+            _rig.RegionTop = SafeY(0.64f);
             _rig.Apply();
             _board.LayoutHolding(_camera, SafeY(0.62f), SafeY(0.885f));
         }
@@ -382,13 +399,12 @@ namespace ScrewGame.Presentation
             _hud = UiKit.Empty(_safe, "Hud");
             var top = UiKit.Empty(_hud, "Top");
             UiKit.Place(top, new Vector2(0f, 0.905f), new Vector2(1f, 1f), new Vector2(28f, 8f), new Vector2(-28f, -16f));
-            UiKit.Row(top, 16f);
-            var menu = UiKit.Button(top, Loc.T("menu"), () => { CancelHint(); ShowHome(); }, null, 34f);
-            menu.GetComponent<LayoutElement>().preferredWidth = 220f;
-            menu.GetComponent<LayoutElement>().flexibleWidth = 0f;
+            var menu = UiKit.Button(top, "II", () => { CancelHint(); ShowHome(); }, Palette.Accent, 44f);
+            UiKit.Place((RectTransform)menu.transform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, -55f), new Vector2(110f, 55f));
             var titleHolder = UiKit.Empty(top, "Title");
-            titleHolder.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-            _levelLabel = UiKit.Label(titleHolder, daily ? Loc.T("daily") : Loc.F("level", _campaign.IndexOf(level.Definition.Id) + 1) + "\n" + level.Definition.Name, 34f);
+            UiKit.Place(titleHolder, new Vector2(0f, 0f), new Vector2(1f, 1f), new Vector2(130f, 0f), new Vector2(-130f, 0f));
+            string title = daily ? Loc.T("daily") : Loc.F("level", _campaign.IndexOf(level.Definition.Id) + 1).ToUpperInvariant();
+            _levelLabel = UiKit.Label(titleHolder, "<size=60>" + title + "</size>\n<size=30>" + level.Definition.Name + "</size>", 60f);
             _levelLabel.fontStyle = TMPro.FontStyles.Bold;
 
             var tut = UiKit.Empty(_hud, "Tutorial");
@@ -398,8 +414,8 @@ namespace ScrewGame.Presentation
             var bottom = UiKit.Empty(_hud, "Bottom");
             UiKit.Place(bottom, new Vector2(0f, 0f), new Vector2(1f, 0.075f), new Vector2(28f, 20f), new Vector2(-28f, 0f));
             UiKit.Row(bottom, 18f);
-            _undoBtn = UiKit.Button(bottom, Loc.T("undo"), OnUndo, null, 36f);
-            _hintBtn = UiKit.Button(bottom, Loc.T("hint"), OnHint, null, 36f);
+            _undoBtn = UiKit.Button(bottom, Loc.T("undo"), OnUndo, Palette.Accent, 36f);
+            _hintBtn = UiKit.Button(bottom, Loc.T("hint"), OnHint, Palette.Secondary, 36f);
             _restartBtn = UiKit.Button(bottom, Loc.T("restart"), OnRestart, Palette.Primary, 36f);
             _hud.SetSiblingIndex(1);
         }

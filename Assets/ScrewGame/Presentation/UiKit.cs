@@ -56,6 +56,8 @@ namespace ScrewGame.Presentation
             t.alignment = align;
             t.textWrappingMode = TextWrappingModes.Normal;
             t.raycastTarget = false;
+            t.outlineWidth = 0.22f;
+            t.outlineColor = Palette.Outline;
             Stretch((RectTransform)go.transform);
             return t;
         }
@@ -67,6 +69,12 @@ namespace ScrewGame.Presentation
             var img = go.GetComponent<Image>();
             img.color = color ?? Palette.Secondary;
             Round(img);
+            var lip = go.AddComponent<Shadow>();
+            lip.effectColor = new Color(0f, 0f, 0f, 0.28f);
+            lip.effectDistance = new Vector2(0f, -9f);
+            var rim = go.AddComponent<Outline>();
+            rim.effectColor = new Color(1f, 1f, 1f, 0.9f);
+            rim.effectDistance = new Vector2(4f, -4f);
             var b = go.GetComponent<Button>();
             var colors = b.colors;
             colors.pressedColor = new Color(0.8f, 0.8f, 0.8f);
