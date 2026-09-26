@@ -1,0 +1,143 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L01",
+  "ContentVersion": 1,
+  "Name": "Workbench Plank",
+  "ObjectId": "plank",
+  "Family": "workshop",
+  "TrayPositions": 2,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    0,
+    1
+  ],
+  "Parts": [
+    {
+      "Id": "plank",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        0,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        4,
+        0.3,
+        1.2
+      ],
+      "Material": 0
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L01-s00",
+      "PartId": "plank",
+      "Color": 0,
+      "Position": [
+        -1.7,
+        0.15,
+        -0.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L01-s01",
+      "PartId": "plank",
+      "Color": 1,
+      "Position": [
+        0.0,
+        0.15,
+        -0.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L01-s02",
+      "PartId": "plank",
+      "Color": 0,
+      "Position": [
+        1.7,
+        0.15,
+        -0.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L01-s03",
+      "PartId": "plank",
+      "Color": 1,
+      "Position": [
+        -1.7,
+        0.15,
+        0.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L01-s04",
+      "PartId": "plank",
+      "Color": 0,
+      "Position": [
+        0.0,
+        0.15,
+        0.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L01-s05",
+      "PartId": "plank",
+      "Color": 1,
+      "Position": [
+        1.7,
+        0.15,
+        0.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 15,
+    "MaxPitch": 75,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "match colors into trays",
+    "DifficultyHypothesis": 1,
+    "LayoutId": "plank-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}

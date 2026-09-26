@@ -1,0 +1,558 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L09",
+  "ContentVersion": 1,
+  "Name": "Lighthouse",
+  "ObjectId": "lighthouse",
+  "Family": "buildings",
+  "TrayPositions": 2,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    6,
+    0,
+    1,
+    6,
+    2,
+    0,
+    1,
+    2
+  ],
+  "Parts": [
+    {
+      "Id": "lamp",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        2.1,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.9,
+        0.5,
+        0.9
+      ],
+      "Material": 7
+    },
+    {
+      "Id": "gallery",
+      "Blockers": [
+        "lamp"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        1.7,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.6,
+        0.2,
+        1.6
+      ],
+      "Material": 4
+    },
+    {
+      "Id": "upper",
+      "Blockers": [
+        "gallery"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        1.0,
+        0.55
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.1,
+        1.1,
+        0.1
+      ],
+      "Material": 1
+    },
+    {
+      "Id": "upper_b",
+      "Blockers": [
+        "gallery"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        1.0,
+        -0.55
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.1,
+        1.1,
+        0.1
+      ],
+      "Material": 1
+    },
+    {
+      "Id": "lower",
+      "Blockers": [
+        "upper"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.2,
+        0.7
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.5,
+        1.2,
+        0.1
+      ],
+      "Material": 5
+    },
+    {
+      "Id": "lower_b",
+      "Blockers": [
+        "upper_b"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.2,
+        -0.7
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.5,
+        1.2,
+        0.1
+      ],
+      "Material": 5
+    },
+    {
+      "Id": "rock",
+      "Blockers": [
+        "lower",
+        "lower_b"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -1.0,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.6,
+        0.4,
+        2.2
+      ],
+      "Material": 0
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L09-s00",
+      "PartId": "lamp",
+      "Color": 6,
+      "Position": [
+        -0.15,
+        2.1,
+        0.45
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s01",
+      "PartId": "lamp",
+      "Color": 0,
+      "Position": [
+        0.0,
+        2.1,
+        0.45
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s02",
+      "PartId": "lamp",
+      "Color": 2,
+      "Position": [
+        0.15,
+        2.1,
+        0.45
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s03",
+      "PartId": "gallery",
+      "Color": 1,
+      "Position": [
+        -0.5,
+        1.8,
+        -0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L09-s04",
+      "PartId": "gallery",
+      "Color": 6,
+      "Position": [
+        0.5,
+        1.8,
+        -0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L09-s05",
+      "PartId": "gallery",
+      "Color": 0,
+      "Position": [
+        -0.5,
+        1.8,
+        0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L09-s06",
+      "PartId": "gallery",
+      "Color": 2,
+      "Position": [
+        0.5,
+        1.8,
+        0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L09-s07",
+      "PartId": "upper",
+      "Color": 6,
+      "Position": [
+        -0.25,
+        0.75,
+        0.6
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s08",
+      "PartId": "upper",
+      "Color": 1,
+      "Position": [
+        0.25,
+        0.75,
+        0.6
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s09",
+      "PartId": "upper",
+      "Color": 2,
+      "Position": [
+        -0.25,
+        1.25,
+        0.6
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s10",
+      "PartId": "upper",
+      "Color": 0,
+      "Position": [
+        0.25,
+        1.25,
+        0.6
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s11",
+      "PartId": "upper_b",
+      "Color": 0,
+      "Position": [
+        -0.25,
+        1.0,
+        -0.6
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L09-s12",
+      "PartId": "upper_b",
+      "Color": 6,
+      "Position": [
+        0.0,
+        1.0,
+        -0.6
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L09-s13",
+      "PartId": "upper_b",
+      "Color": 1,
+      "Position": [
+        0.25,
+        1.0,
+        -0.6
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L09-s14",
+      "PartId": "lower",
+      "Color": 2,
+      "Position": [
+        -0.45,
+        -0.5,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s15",
+      "PartId": "lower",
+      "Color": 1,
+      "Position": [
+        0.45,
+        -0.5,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s16",
+      "PartId": "lower",
+      "Color": 6,
+      "Position": [
+        -0.45,
+        0.1,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s17",
+      "PartId": "lower",
+      "Color": 0,
+      "Position": [
+        0.45,
+        0.1,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L09-s18",
+      "PartId": "lower_b",
+      "Color": 1,
+      "Position": [
+        -0.45,
+        -0.5,
+        -0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L09-s19",
+      "PartId": "lower_b",
+      "Color": 2,
+      "Position": [
+        0.45,
+        -0.5,
+        -0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L09-s20",
+      "PartId": "lower_b",
+      "Color": 6,
+      "Position": [
+        -0.45,
+        0.1,
+        -0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L09-s21",
+      "PartId": "lower_b",
+      "Color": 0,
+      "Position": [
+        0.45,
+        0.1,
+        -0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L09-s22",
+      "PartId": "rock",
+      "Color": 2,
+      "Position": [
+        -1.0,
+        -0.8,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L09-s23",
+      "PartId": "rock",
+      "Color": 1,
+      "Position": [
+        1.0,
+        -0.8,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 15,
+    "MaxPitch": 75,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "manage a crowded buffer",
+    "DifficultyHypothesis": 4,
+    "LayoutId": "lighthouse-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}

@@ -1,0 +1,304 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L04",
+  "ContentVersion": 1,
+  "Name": "Toy Car",
+  "ObjectId": "car",
+  "Family": "toys",
+  "TrayPositions": 2,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    0,
+    2,
+    1,
+    3
+  ],
+  "Parts": [
+    {
+      "Id": "roof",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        1.0,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.8,
+        0.2,
+        1.4
+      ],
+      "Material": 3
+    },
+    {
+      "Id": "cabin",
+      "Blockers": [
+        "roof"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.55,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.4,
+        0.5,
+        1.5
+      ],
+      "Material": 4
+    },
+    {
+      "Id": "hood",
+      "Blockers": [
+        "cabin"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.2,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        3.8,
+        0.2,
+        1.6
+      ],
+      "Material": 5
+    },
+    {
+      "Id": "chassis",
+      "Blockers": [
+        "hood"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.15,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        4,
+        0.3,
+        1.8
+      ],
+      "Material": 0
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L04-s00",
+      "PartId": "roof",
+      "Color": 1,
+      "Position": [
+        -0.6,
+        1.1,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s01",
+      "PartId": "roof",
+      "Color": 2,
+      "Position": [
+        0.6,
+        1.1,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s02",
+      "PartId": "cabin",
+      "Color": 0,
+      "Position": [
+        -0.9,
+        0.55,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s03",
+      "PartId": "cabin",
+      "Color": 3,
+      "Position": [
+        0.0,
+        0.55,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s04",
+      "PartId": "cabin",
+      "Color": 2,
+      "Position": [
+        0.9,
+        0.55,
+        0.75
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s05",
+      "PartId": "hood",
+      "Color": 0,
+      "Position": [
+        -1.6,
+        0.3,
+        -0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s06",
+      "PartId": "hood",
+      "Color": 1,
+      "Position": [
+        1.6,
+        0.3,
+        -0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s07",
+      "PartId": "hood",
+      "Color": 3,
+      "Position": [
+        -1.6,
+        0.3,
+        0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s08",
+      "PartId": "hood",
+      "Color": 0,
+      "Position": [
+        1.6,
+        0.3,
+        0.5
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L04-s09",
+      "PartId": "chassis",
+      "Color": 2,
+      "Position": [
+        -1.7,
+        -0.15,
+        0.9
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s10",
+      "PartId": "chassis",
+      "Color": 1,
+      "Position": [
+        0.0,
+        -0.15,
+        0.9
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L04-s11",
+      "PartId": "chassis",
+      "Color": 3,
+      "Position": [
+        1.7,
+        -0.15,
+        0.9
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 15,
+    "MaxPitch": 75,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "layered blockers",
+    "DifficultyHypothesis": 2,
+    "LayoutId": "car-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}

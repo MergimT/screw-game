@@ -1,0 +1,437 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L06",
+  "ContentVersion": 1,
+  "Name": "Robot Friend",
+  "ObjectId": "robot",
+  "Family": "toys",
+  "TrayPositions": 2,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    3,
+    0,
+    1,
+    2,
+    3,
+    0
+  ],
+  "Parts": [
+    {
+      "Id": "head",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        1.6,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.2,
+        0.8,
+        1.0
+      ],
+      "Material": 6
+    },
+    {
+      "Id": "chest",
+      "Blockers": [
+        "head"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.6,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.0,
+        1.1,
+        0.4
+      ],
+      "Material": 4
+    },
+    {
+      "Id": "arm_l",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        -1.3,
+        0.6,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.4,
+        1.0,
+        0.4
+      ],
+      "Material": 5
+    },
+    {
+      "Id": "arm_r",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        1.3,
+        0.6,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.4,
+        1.0,
+        0.4
+      ],
+      "Material": 5
+    },
+    {
+      "Id": "back",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.6,
+        -0.3
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.0,
+        1.1,
+        0.2
+      ],
+      "Material": 1
+    },
+    {
+      "Id": "hips",
+      "Blockers": [
+        "chest",
+        "back"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.3,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.8,
+        0.5,
+        0.8
+      ],
+      "Material": 0
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L06-s00",
+      "PartId": "head",
+      "Color": 2,
+      "Position": [
+        -0.3,
+        1.6,
+        0.5
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s01",
+      "PartId": "head",
+      "Color": 1,
+      "Position": [
+        0.3,
+        1.6,
+        0.5
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s02",
+      "PartId": "chest",
+      "Color": 3,
+      "Position": [
+        -0.7,
+        0.35,
+        0.2
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s03",
+      "PartId": "chest",
+      "Color": 0,
+      "Position": [
+        0.7,
+        0.35,
+        0.2
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s04",
+      "PartId": "chest",
+      "Color": 3,
+      "Position": [
+        -0.7,
+        0.85,
+        0.2
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s05",
+      "PartId": "chest",
+      "Color": 1,
+      "Position": [
+        0.7,
+        0.85,
+        0.2
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s06",
+      "PartId": "arm_l",
+      "Color": 0,
+      "Position": [
+        -1.5,
+        0.4,
+        0.0
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s07",
+      "PartId": "arm_l",
+      "Color": 2,
+      "Position": [
+        -1.5,
+        0.8,
+        0.0
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s08",
+      "PartId": "arm_r",
+      "Color": 3,
+      "Position": [
+        1.5,
+        0.4,
+        0.0
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s09",
+      "PartId": "arm_r",
+      "Color": 1,
+      "Position": [
+        1.5,
+        0.8,
+        0.0
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L06-s10",
+      "PartId": "back",
+      "Color": 0,
+      "Position": [
+        -0.7,
+        0.6,
+        -0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L06-s11",
+      "PartId": "back",
+      "Color": 0,
+      "Position": [
+        0.0,
+        0.6,
+        -0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L06-s12",
+      "PartId": "back",
+      "Color": 3,
+      "Position": [
+        0.7,
+        0.6,
+        -0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L06-s13",
+      "PartId": "hips",
+      "Color": 0,
+      "Position": [
+        -0.6,
+        -0.3,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s14",
+      "PartId": "hips",
+      "Color": 3,
+      "Position": [
+        -0.3,
+        -0.3,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s15",
+      "PartId": "hips",
+      "Color": 0,
+      "Position": [
+        0.0,
+        -0.3,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s16",
+      "PartId": "hips",
+      "Color": 2,
+      "Position": [
+        0.3,
+        -0.3,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L06-s17",
+      "PartId": "hips",
+      "Color": 3,
+      "Position": [
+        0.6,
+        -0.3,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 15,
+    "MaxPitch": 75,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "combine buffer and blockers",
+    "DifficultyHypothesis": 3,
+    "LayoutId": "robot-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}

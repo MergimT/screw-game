@@ -1,0 +1,646 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L10",
+  "ContentVersion": 1,
+  "Name": "Clock Tower",
+  "ObjectId": "clocktower",
+  "Family": "buildings",
+  "TrayPositions": 2,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    0,
+    7,
+    3,
+    1,
+    2,
+    0,
+    7,
+    3,
+    1,
+    2
+  ],
+  "Parts": [
+    {
+      "Id": "spire",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        2.5,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.8,
+        0.6,
+        0.8
+      ],
+      "Material": 6
+    },
+    {
+      "Id": "clock_f",
+      "Blockers": [
+        "spire"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        1.6,
+        0.6
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.3,
+        1.3,
+        0.1
+      ],
+      "Material": 7
+    },
+    {
+      "Id": "clock_b",
+      "Blockers": [
+        "spire"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        1.6,
+        -0.6
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.3,
+        1.3,
+        0.1
+      ],
+      "Material": 7
+    },
+    {
+      "Id": "side_l",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        -0.75,
+        0.6,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.1,
+        2.0,
+        1.2
+      ],
+      "Material": 1
+    },
+    {
+      "Id": "side_r",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0.75,
+        0.6,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.1,
+        2.0,
+        1.2
+      ],
+      "Material": 1
+    },
+    {
+      "Id": "door",
+      "Blockers": [
+        "clock_f"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.1,
+        0.65
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.7,
+        1.0,
+        0.1
+      ],
+      "Material": 3
+    },
+    {
+      "Id": "base",
+      "Blockers": [
+        "door",
+        "clock_b"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.6,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.4,
+        0.4,
+        2.0
+      ],
+      "Material": 0
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L10-s00",
+      "PartId": "spire",
+      "Color": 7,
+      "Position": [
+        -0.1,
+        2.5,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s01",
+      "PartId": "spire",
+      "Color": 0,
+      "Position": [
+        0.0,
+        2.5,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s02",
+      "PartId": "spire",
+      "Color": 3,
+      "Position": [
+        0.1,
+        2.5,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s03",
+      "PartId": "clock_f",
+      "Color": 1,
+      "Position": [
+        -0.35,
+        1.25,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s04",
+      "PartId": "clock_f",
+      "Color": 7,
+      "Position": [
+        0.35,
+        1.25,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s05",
+      "PartId": "clock_f",
+      "Color": 2,
+      "Position": [
+        -0.35,
+        1.95,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s06",
+      "PartId": "clock_f",
+      "Color": 0,
+      "Position": [
+        0.35,
+        1.95,
+        0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s07",
+      "PartId": "clock_b",
+      "Color": 3,
+      "Position": [
+        -0.35,
+        1.25,
+        -0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L10-s08",
+      "PartId": "clock_b",
+      "Color": 2,
+      "Position": [
+        0.35,
+        1.25,
+        -0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L10-s09",
+      "PartId": "clock_b",
+      "Color": 7,
+      "Position": [
+        -0.35,
+        1.95,
+        -0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L10-s10",
+      "PartId": "clock_b",
+      "Color": 1,
+      "Position": [
+        0.35,
+        1.95,
+        -0.65
+      ],
+      "Normal": [
+        0,
+        0,
+        -1
+      ]
+    },
+    {
+      "Id": "L10-s11",
+      "PartId": "side_l",
+      "Color": 0,
+      "Position": [
+        -0.8,
+        -0.1,
+        -0.3
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s12",
+      "PartId": "side_l",
+      "Color": 1,
+      "Position": [
+        -0.8,
+        0.6,
+        -0.3
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s13",
+      "PartId": "side_l",
+      "Color": 2,
+      "Position": [
+        -0.8,
+        1.3,
+        -0.3
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s14",
+      "PartId": "side_l",
+      "Color": 7,
+      "Position": [
+        -0.8,
+        -0.1,
+        0.3
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s15",
+      "PartId": "side_l",
+      "Color": 3,
+      "Position": [
+        -0.8,
+        1.3,
+        0.3
+      ],
+      "Normal": [
+        -1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s16",
+      "PartId": "side_r",
+      "Color": 3,
+      "Position": [
+        0.8,
+        -0.1,
+        -0.3
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s17",
+      "PartId": "side_r",
+      "Color": 0,
+      "Position": [
+        0.8,
+        0.6,
+        -0.3
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s18",
+      "PartId": "side_r",
+      "Color": 7,
+      "Position": [
+        0.8,
+        1.3,
+        -0.3
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s19",
+      "PartId": "side_r",
+      "Color": 1,
+      "Position": [
+        0.8,
+        -0.1,
+        0.3
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s20",
+      "PartId": "side_r",
+      "Color": 2,
+      "Position": [
+        0.8,
+        1.3,
+        0.3
+      ],
+      "Normal": [
+        1,
+        0,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s21",
+      "PartId": "door",
+      "Color": 2,
+      "Position": [
+        0.0,
+        -0.1,
+        0.7
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s22",
+      "PartId": "door",
+      "Color": 3,
+      "Position": [
+        0.0,
+        0.1,
+        0.7
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s23",
+      "PartId": "door",
+      "Color": 1,
+      "Position": [
+        0.0,
+        0.3,
+        0.7
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L10-s24",
+      "PartId": "base",
+      "Color": 0,
+      "Position": [
+        -0.9,
+        -0.4,
+        -0.7
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s25",
+      "PartId": "base",
+      "Color": 7,
+      "Position": [
+        0.0,
+        -0.4,
+        -0.7
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s26",
+      "PartId": "base",
+      "Color": 1,
+      "Position": [
+        0.9,
+        -0.4,
+        -0.7
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s27",
+      "PartId": "base",
+      "Color": 3,
+      "Position": [
+        -0.9,
+        -0.4,
+        0.7
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s28",
+      "PartId": "base",
+      "Color": 2,
+      "Position": [
+        0.0,
+        -0.4,
+        0.7
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L10-s29",
+      "PartId": "base",
+      "Color": 0,
+      "Position": [
+        0.9,
+        -0.4,
+        0.7
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 15,
+    "MaxPitch": 75,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "full combination",
+    "DifficultyHypothesis": 5,
+    "LayoutId": "clocktower-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}

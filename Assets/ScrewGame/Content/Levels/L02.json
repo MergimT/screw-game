@@ -1,0 +1,212 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L02",
+  "ContentVersion": 1,
+  "Name": "Hinge Plate",
+  "ObjectId": "hinge",
+  "Family": "workshop",
+  "TrayPositions": 2,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    0,
+    1,
+    2
+  ],
+  "Parts": [
+    {
+      "Id": "latch",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.35,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.6,
+        0.25,
+        1.0
+      ],
+      "Material": 1
+    },
+    {
+      "Id": "base",
+      "Blockers": [
+        "latch"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        3.6,
+        0.4,
+        2.2
+      ],
+      "Material": 0
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L02-s00",
+      "PartId": "latch",
+      "Color": 2,
+      "Position": [
+        -0.5,
+        0.475,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s01",
+      "PartId": "latch",
+      "Color": 0,
+      "Position": [
+        0.0,
+        0.475,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s02",
+      "PartId": "latch",
+      "Color": 0,
+      "Position": [
+        0.5,
+        0.475,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s03",
+      "PartId": "base",
+      "Color": 0,
+      "Position": [
+        -1.5,
+        0.2,
+        -0.8
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s04",
+      "PartId": "base",
+      "Color": 1,
+      "Position": [
+        0.0,
+        0.2,
+        -0.8
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s05",
+      "PartId": "base",
+      "Color": 1,
+      "Position": [
+        1.5,
+        0.2,
+        -0.8
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s06",
+      "PartId": "base",
+      "Color": 1,
+      "Position": [
+        -1.5,
+        0.2,
+        0.8
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s07",
+      "PartId": "base",
+      "Color": 2,
+      "Position": [
+        0.0,
+        0.2,
+        0.8
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L02-s08",
+      "PartId": "base",
+      "Color": 2,
+      "Position": [
+        1.5,
+        0.2,
+        0.8
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 15,
+    "MaxPitch": 75,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "first buffer use",
+    "DifficultyHypothesis": 1,
+    "LayoutId": "hinge-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}

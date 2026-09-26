@@ -1,0 +1,394 @@
+{
+  "SchemaVersion": 1,
+  "Id": "L05",
+  "ContentVersion": 1,
+  "Name": "Spinning Top",
+  "ObjectId": "top",
+  "Family": "toys",
+  "TrayPositions": 2,
+  "TrayCapacity": 3,
+  "BufferSlots": 5,
+  "TrayQueue": [
+    0,
+    1,
+    0,
+    2,
+    1,
+    2
+  ],
+  "Parts": [
+    {
+      "Id": "cap",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.9,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        1.2,
+        0.2,
+        1.2
+      ],
+      "Material": 6
+    },
+    {
+      "Id": "ring",
+      "Blockers": [
+        "cap"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.5,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        2.4,
+        0.25,
+        2.4
+      ],
+      "Material": 4
+    },
+    {
+      "Id": "disc",
+      "Blockers": [
+        "ring"
+      ],
+      "Shape": "box",
+      "Position": [
+        0,
+        0.1,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        3.2,
+        0.25,
+        3.2
+      ],
+      "Material": 5
+    },
+    {
+      "Id": "spike",
+      "Blockers": [],
+      "Shape": "box",
+      "Position": [
+        0,
+        -0.35,
+        0
+      ],
+      "Rotation": [
+        0,
+        0,
+        0
+      ],
+      "Size": [
+        0.8,
+        0.6,
+        0.8
+      ],
+      "Material": 0
+    }
+  ],
+  "Screws": [
+    {
+      "Id": "L05-s00",
+      "PartId": "cap",
+      "Color": 2,
+      "Position": [
+        -0.3,
+        1.0,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s01",
+      "PartId": "cap",
+      "Color": 1,
+      "Position": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s02",
+      "PartId": "cap",
+      "Color": 2,
+      "Position": [
+        0.3,
+        1.0,
+        0.0
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s03",
+      "PartId": "ring",
+      "Color": 0,
+      "Position": [
+        -0.9,
+        0.625,
+        -0.9
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s04",
+      "PartId": "ring",
+      "Color": 2,
+      "Position": [
+        0.9,
+        0.625,
+        -0.9
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s05",
+      "PartId": "ring",
+      "Color": 1,
+      "Position": [
+        -0.9,
+        0.625,
+        0.9
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s06",
+      "PartId": "ring",
+      "Color": 0,
+      "Position": [
+        0.9,
+        0.625,
+        0.9
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s07",
+      "PartId": "disc",
+      "Color": 0,
+      "Position": [
+        -1.3,
+        0.225,
+        -1.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s08",
+      "PartId": "disc",
+      "Color": 0,
+      "Position": [
+        0.0,
+        0.225,
+        -1.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s09",
+      "PartId": "disc",
+      "Color": 1,
+      "Position": [
+        1.3,
+        0.225,
+        -1.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s10",
+      "PartId": "disc",
+      "Color": 2,
+      "Position": [
+        -1.3,
+        0.225,
+        1.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s11",
+      "PartId": "disc",
+      "Color": 1,
+      "Position": [
+        0.0,
+        0.225,
+        1.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s12",
+      "PartId": "disc",
+      "Color": 0,
+      "Position": [
+        1.3,
+        0.225,
+        1.3
+      ],
+      "Normal": [
+        0,
+        1,
+        0
+      ]
+    },
+    {
+      "Id": "L05-s13",
+      "PartId": "spike",
+      "Color": 2,
+      "Position": [
+        -0.1,
+        -0.35,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L05-s14",
+      "PartId": "spike",
+      "Color": 1,
+      "Position": [
+        -0.05,
+        -0.35,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L05-s15",
+      "PartId": "spike",
+      "Color": 0,
+      "Position": [
+        0.0,
+        -0.35,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L05-s16",
+      "PartId": "spike",
+      "Color": 2,
+      "Position": [
+        0.05,
+        -0.35,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "Id": "L05-s17",
+      "PartId": "spike",
+      "Color": 1,
+      "Position": [
+        0.1,
+        -0.35,
+        0.4
+      ],
+      "Normal": [
+        0,
+        0,
+        1
+      ]
+    }
+  ],
+  "Camera": {
+    "MinYaw": -180,
+    "MaxYaw": 180,
+    "MinPitch": 15,
+    "MaxPitch": 75,
+    "Distance": 9
+  },
+  "Meta": {
+    "IntroducedSkill": "plan for tray replacement",
+    "DifficultyHypothesis": 3,
+    "LayoutId": "top-layout",
+    "ReviewStatus": "unreviewed"
+  }
+}
