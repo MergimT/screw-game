@@ -17,7 +17,7 @@ dotnet run --project ScrewGame.Cli -c Release -- validate \
   ../../Assets/ScrewGame/Resources/Levels ../../reports/level-validation.json 2000000
 ```
 
-## Unity (blocked until a license is activated)
+## Unity
 ```bash
 U=$HOME/Unity/6000.3.24f1/Editor/Unity
 # one-time, idempotent project configuration (URP asset, player settings, Bootstrap scene)
@@ -31,6 +31,6 @@ xvfb-run -a $U -batchmode -quit -projectPath . -buildTarget Android -executeMeth
 # iOS Xcode export -> Builds/iOS/Xcode (archive/sign on macOS)
 xvfb-run -a $U -batchmode -quit -projectPath . -buildTarget iOS -executeMethod ScrewGame.EditorTools.BuildScripts.IosXcodeExport -logFile -
 ```
-Last attempted: `Unity -batchmode -quit -nographics -username … -password …` → exit 198, "No valid Unity Editor license found" (entitlement `com.unity.editor.headless` not found). Retried with the Student Plan account: same result; GUI-mode editor under Xvfb: `com.unity.editor.ui` not found until a license is activated in Unity Hub.
+Status 2026-09-26 (Student Plan license activated in Unity Hub): ProjectSetup exit 0; EditMode 99/99; iOS Xcode export Succeeded (0 errors); Linux64 smoke player: `-buildTarget Linux64 -buildLinux64Player Builds/Linux/ScrewWorkshop.x86_64`. Android APK fails: `Missing CMake 3.22.1`.
 
-Build stages are distinct: Unity compilation ≠ Xcode export ≠ Xcode archive ≠ signed device install; Android development APK ≠ release AAB. None have been achieved yet.
+Build stages are distinct: Unity compilation ≠ Xcode export ≠ Xcode archive ≠ signed device install; Android development APK ≠ release AAB. Achieved: Unity compilation and Xcode export. Not achieved: Xcode archive, signed install, Android APK/AAB.

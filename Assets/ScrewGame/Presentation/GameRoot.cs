@@ -26,6 +26,7 @@ namespace ScrewGame.Presentation
     public sealed class GameRoot : MonoBehaviour
     {
         public Material LitTemplate;
+        public Material UnlitTemplate;
         public const float DragThresholdInches = 0.06f;
         public const float DegreesPerInch = 110f;
 
@@ -122,7 +123,7 @@ namespace ScrewGame.Presentation
             _camera = camGo.AddComponent<Camera>();
             _camera.clearFlags = CameraClearFlags.SolidColor;
             _camera.backgroundColor = Palette.Background;
-            _camera.fieldOfView = 40f;
+            _camera.fieldOfView = 38f;
             _camera.nearClipPlane = 0.1f;
             _camera.farClipPlane = 60f;
             camGo.AddComponent<AudioListener>();
@@ -132,26 +133,76 @@ namespace ScrewGame.Presentation
             var lightGo = new GameObject("Key Light");
             var light = lightGo.AddComponent<Light>();
             light.type = LightType.Directional;
-            light.intensity = 1.15f;
+            light.intensity = 1.35f;
+            light.color = new Color(1f, 0.97f, 0.92f);
             light.shadows = LightShadows.Soft;
-            lightGo.transform.rotation = Quaternion.Euler(50f, -30f, 0f);
-            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
-            RenderSettings.ambientLight = new Color(0.62f, 0.60f, 0.58f);
+            light.shadowStrength = 0.55f;
+            lightGo.transform.rotation = Quaternion.Euler(52f, -35f, 0f);
+            var rimGo = new GameObject("Rim Light");
+            var rim = rimGo.AddComponent<Light>();
+            rim.type = LightType.Directional;
+            rim.intensity = 0.45f;
+            rim.color = new Color(0.75f, 0.85f, 1f);
+            rim.shadows = LightShadows.None;
+            rimGo.transform.rotation = Quaternion.Euler(25f, 150f, 0f);
+            RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor = new Color(0.78f, 0.80f, 0.85f);
+            RenderSettings.ambientEquatorColor = new Color(0.50f, 0.52f, 0.58f);
+            RenderSettings.ambientGroundColor = new Color(0.23f, 0.29f, 0.37f);
 
             var boardGo = new GameObject("Board");
             _board = boardGo.AddComponent<BoardView>();
-            var trayAnchor = new GameObject("TrayAnchor").transform;
-            trayAnchor.SetParent(camGo.transform, false);
-            trayAnchor.localPosition = new Vector3(0f, -2.35f, 8f);
-            trayAnchor.localRotation = Quaternion.Euler(-60f, 0f, 0f);
-            trayAnchor.localScale = Vector3.one * 0.75f;
-            _board.TrayAnchor = trayAnchor;
+            _board.TrayAnchor = camGo.transform;
+            BuildBackdrop(camGo.transform);
 
             if (LitTemplate == null)
             {
                 var shader = Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard");
                 LitTemplate = new Material(shader);
             }
+        }
+
+        private void BuildBackdrop(Transform cam)
+        {
+            var tex = new Texture2D(2, 128, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+            for (int y = 0; y < 128; y++)
+            {
+                float k = y / 127f;
+                var c = k > 0.55f ? Color.Lerp(Palette.Background, Palette.BackgroundTop, (k - 0.55f) / 0.45f) : Color.Lerp(Palette.BackgroundBottom, Palette.Background, k / 0.55f);
+                tex.SetPixel(0, y, c);
+                tex.SetPixel(1, y, c);
+            }
+            tex.Apply();
+            var shader = UnlitTemplate != null ? UnlitTemplate.shader : Shader.Find("Universal Render Pipeline/Unlit");
+            if (shader == null) return;
+            var mat = new Material(shader);
+            if (mat.HasProperty("_BaseMap")) mat.SetTexture("_BaseMap", tex);
+            mat.mainTexture = tex;
+            var quad = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            quad.name = "Backdrop";
+            Destroy(quad.GetComponent<Collider>());
+            quad.transform.SetParent(cam, false);
+            quad.transform.localPosition = new Vector3(0f, 0f, 55f);
+            quad.transform.localScale = new Vector3(70f, 70f, 1f);
+            var r = quad.GetComponent<Renderer>();
+            r.sharedMaterial = mat;
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
+        }
+
+        private float SafeY(float f)
+        {
+            var sa = Screen.safeArea;
+            return Screen.height > 0 ? (sa.yMin + f * sa.height) / Screen.height : f;
+        }
+
+        private void LateUpdate()
+        {
+            if (_hud == null || _rig == null) return;
+            _rig.RegionBottom = SafeY(0.13f);
+            _rig.RegionTop = SafeY(0.60f);
+            _rig.Apply();
+            _board.LayoutHolding(_camera, SafeY(0.62f), SafeY(0.885f));
         }
 
         private void BuildUi()
@@ -171,8 +222,9 @@ namespace ScrewGame.Presentation
             _safe = UiKit.Empty(canvasGo.transform, "SafeArea");
             _safe.gameObject.AddComponent<SafeArea>();
 
-            var toastRt = UiKit.Panel(_safe, "Toast", new Color(0.12f, 0.12f, 0.12f, 0.85f));
-            UiKit.Place(toastRt, new Vector2(0.06f, 0.80f), new Vector2(0.94f, 0.87f));
+            var toastRt = UiKit.Panel(_safe, "Toast", new Color(0.05f, 0.08f, 0.13f, 0.88f));
+            UiKit.Round(toastRt.GetComponent<Image>());
+            UiKit.Place(toastRt, new Vector2(0.06f, 0.52f), new Vector2(0.94f, 0.58f));
             _toast = UiKit.Label(toastRt, "", 36f);
             _toast.color = Color.white;
             toastRt.gameObject.SetActive(false);
@@ -198,7 +250,7 @@ namespace ScrewGame.Presentation
             UiKit.Heading(s, Loc.T("title"), 88f, 260f);
             var cur = _campaign.Current(_session.Profile);
             UiKit.Button(s, cur != null ? Loc.T("play") + "  -  " + Loc.F("level", _campaign.IndexOf(cur.LevelId) + 1) : Loc.T("levels"),
-                () => { if (cur != null) StartLevel(cur.LevelId, false, ""); else ShowLevels(); }, new Color(0.98f, 0.78f, 0.35f), 48f);
+                () => { if (cur != null) StartLevel(cur.LevelId, false, ""); else ShowLevels(); }, Palette.Primary, 48f);
             UiKit.Button(s, Loc.T("levels"), ShowLevels);
             var today = DailyChallenge.DateKey(_clock.UtcNow);
             var dailyBtn = UiKit.Button(s, DailyChallenge.IsCompleted(_session.Profile, today) ? Loc.T("daily_done") : Loc.T("daily"), () => StartDaily(today));
@@ -220,7 +272,7 @@ namespace ScrewGame.Presentation
                 bool done = _campaign.IsCompleted(_session.Profile, e.LevelId);
                 var text = Loc.F("level", i + 1) + "  " + e.Name + (done ? "  [x]" : unlocked ? "" : "  - " + Loc.T("locked"));
                 var id = e.LevelId;
-                var b = UiKit.Button(s, text, () => StartLevel(id, false, ""), done ? new Color(0.80f, 0.92f, 0.80f) : (Color?)null, 34f);
+                var b = UiKit.Button(s, text, () => StartLevel(id, false, ""), done ? Palette.Success : (Color?)null, 34f);
                 b.GetComponent<LayoutElement>().preferredHeight = 100f;
                 b.GetComponent<LayoutElement>().minHeight = 100f;
                 b.interactable = unlocked;
@@ -312,7 +364,8 @@ namespace ScrewGame.Presentation
             var kind = _session.Start(level, daily, dateKey);
             _board.Build(level, LitTemplate);
             _board.ShowSymbols = _session.Profile.Settings.ColorSymbols;
-            _rig.Configure(level.Definition.Camera);
+            _rig.Configure(level.Definition.Camera, _board.ObjectBounds);
+            LateUpdate();
             _board.Rebuild(_session.Engine.State);
             BuildHud(level, daily);
             _analytics.LogEvent("level_view", new Dictionary<string, object> { ["level_id"] = levelId, ["resumed"] = kind == StartKind.Resumed });
@@ -328,25 +381,26 @@ namespace ScrewGame.Presentation
             s.GetComponent<Image>().raycastTarget = false;
             _hud = UiKit.Empty(_safe, "Hud");
             var top = UiKit.Empty(_hud, "Top");
-            UiKit.Place(top, new Vector2(0f, 0.9f), new Vector2(1f, 1f), new Vector2(24f, 0f), new Vector2(-24f, -12f));
+            UiKit.Place(top, new Vector2(0f, 0.905f), new Vector2(1f, 1f), new Vector2(28f, 8f), new Vector2(-28f, -16f));
             UiKit.Row(top, 16f);
             var menu = UiKit.Button(top, Loc.T("menu"), () => { CancelHint(); ShowHome(); }, null, 34f);
             menu.GetComponent<LayoutElement>().preferredWidth = 220f;
             menu.GetComponent<LayoutElement>().flexibleWidth = 0f;
             var titleHolder = UiKit.Empty(top, "Title");
             titleHolder.gameObject.AddComponent<LayoutElement>().flexibleWidth = 1f;
-            _levelLabel = UiKit.Label(titleHolder, daily ? Loc.T("daily") : Loc.F("level", _campaign.IndexOf(level.Definition.Id) + 1) + "  " + level.Definition.Name, 40f);
+            _levelLabel = UiKit.Label(titleHolder, daily ? Loc.T("daily") : Loc.F("level", _campaign.IndexOf(level.Definition.Id) + 1) + "\n" + level.Definition.Name, 34f);
+            _levelLabel.fontStyle = TMPro.FontStyles.Bold;
 
             var tut = UiKit.Empty(_hud, "Tutorial");
-            UiKit.Place(tut, new Vector2(0.05f, 0.82f), new Vector2(0.95f, 0.9f));
+            UiKit.Place(tut, new Vector2(0.05f, 0.08f), new Vector2(0.95f, 0.125f));
             _tutorialLabel = UiKit.Label(tut, "", 34f);
 
             var bottom = UiKit.Empty(_hud, "Bottom");
-            UiKit.Place(bottom, new Vector2(0f, 0f), new Vector2(1f, 0.075f), new Vector2(24f, 16f), new Vector2(-24f, 0f));
+            UiKit.Place(bottom, new Vector2(0f, 0f), new Vector2(1f, 0.075f), new Vector2(28f, 20f), new Vector2(-28f, 0f));
             UiKit.Row(bottom, 18f);
             _undoBtn = UiKit.Button(bottom, Loc.T("undo"), OnUndo, null, 36f);
             _hintBtn = UiKit.Button(bottom, Loc.T("hint"), OnHint, null, 36f);
-            _restartBtn = UiKit.Button(bottom, Loc.T("restart"), OnRestart, null, 36f);
+            _restartBtn = UiKit.Button(bottom, Loc.T("restart"), OnRestart, Palette.Primary, 36f);
             _hud.SetSiblingIndex(1);
         }
 
@@ -491,7 +545,8 @@ namespace ScrewGame.Presentation
         {
             CloseOverlay();
             _overlay = UiKit.Panel(_safe, "Overlay", new Color(0f, 0f, 0f, 0.45f));
-            var card = UiKit.Panel(_overlay, "Card", new Color(1f, 0.98f, 0.94f));
+            var card = UiKit.Panel(_overlay, "Card", Palette.Card);
+            UiKit.Round(card.GetComponent<Image>());
             UiKit.Place(card, new Vector2(0.08f, 0.3f), new Vector2(0.92f, 0.7f));
             UiKit.Column(card, 22f, 50);
             return card;
@@ -507,7 +562,7 @@ namespace ScrewGame.Presentation
             UiKit.Heading(card, Loc.T("won"), 64f, 120f);
             UiKit.Heading(card, Loc.F("won_body", def.Name), 38f, 110f);
             var next = _session.Attempt.IsDaily ? null : _campaign.Next(def.Id);
-            if (next != null) UiKit.Button(card, Loc.T("next"), () => { CloseOverlay(); StartLevel(next.LevelId, false, ""); }, new Color(0.98f, 0.78f, 0.35f));
+            if (next != null) UiKit.Button(card, Loc.T("next"), () => { CloseOverlay(); StartLevel(next.LevelId, false, ""); }, Palette.Primary);
             UiKit.Button(card, Loc.T("menu"), () => { CloseOverlay(); ShowHome(); });
         }
 
@@ -519,7 +574,7 @@ namespace ScrewGame.Presentation
             UiKit.Heading(card, Loc.T("stuck_body"), 36f, 120f);
             if (_session.Engine.UndoDepth > 0)
                 UiKit.Button(card, Loc.T("undo") + " (" + _session.Help.Available(HelpKind.Undo) + ")", () => { CloseOverlay(); OnUndo(); });
-            UiKit.Button(card, Loc.T("restart"), OnRestart, new Color(0.98f, 0.78f, 0.35f));
+            UiKit.Button(card, Loc.T("restart"), OnRestart, Palette.Primary);
             if (_ads.Availability == AdAvailability.Ready) UiKit.Button(card, Loc.T("watch_ad"), OfferReward);
         }
 

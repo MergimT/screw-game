@@ -149,6 +149,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: ScrewGame.Presentation::ScrewGame.Presentation.GameRoot
   LitTemplate: {fileID: 2100000, guid: d1dda7416ba5d01618e43551d5d19162, type: 2}
+  UnlitTemplate: {fileID: 2100000, guid: 90604cb1baa09f644bccce878e444437, type: 2}
 --- !u!4 &1641249805
 Transform:
   m_ObjectHideFlags: 0

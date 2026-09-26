@@ -5,16 +5,18 @@ namespace ScrewGame.Presentation
     /// <summary>Screw colors paired with distinct symbols so color is never the only cue.</summary>
     public static class Palette
     {
+        private static Color Hex(uint rgb) => new Color(((rgb >> 16) & 255) / 255f, ((rgb >> 8) & 255) / 255f, (rgb & 255) / 255f);
+
         public static readonly Color[] Screw =
         {
-            new Color(0.89f, 0.23f, 0.25f), // red
-            new Color(0.20f, 0.45f, 0.90f), // blue
-            new Color(0.98f, 0.78f, 0.15f), // yellow
-            new Color(0.22f, 0.70f, 0.35f), // green
-            new Color(0.58f, 0.34f, 0.85f), // purple
-            new Color(0.98f, 0.52f, 0.14f), // orange
-            new Color(0.10f, 0.72f, 0.72f), // teal
-            new Color(0.95f, 0.45f, 0.70f), // pink
+            Hex(0xe53935), // red
+            Hex(0x1e88e5), // blue
+            Hex(0xfdd835), // yellow
+            Hex(0x43a047), // green
+            Hex(0x8e24aa), // purple
+            Hex(0xfb8c00), // orange
+            Hex(0x00acc1), // teal
+            Hex(0xec407a), // pink
         };
 
         public static readonly string[] Symbol = { "●", "■", "▲", "◆", "★", "✚", "⬟", "♥" };
@@ -22,19 +24,23 @@ namespace ScrewGame.Presentation
 
         public static readonly Color[] PartMaterial =
         {
-            new Color(0.80f, 0.66f, 0.50f), // light wood
-            new Color(0.62f, 0.47f, 0.34f), // dark wood
-            new Color(0.70f, 0.74f, 0.78f), // steel
-            new Color(0.93f, 0.90f, 0.84f), // cream
-            new Color(0.55f, 0.72f, 0.80f), // pale blue
-            new Color(0.85f, 0.60f, 0.55f), // terracotta
-            new Color(0.75f, 0.80f, 0.62f), // sage
-            new Color(0.90f, 0.82f, 0.60f), // brass
+            Hex(0xffcc80), Hex(0x80deea), Hex(0xc5e1a5), Hex(0xf48fb1),
+            Hex(0xb39ddb), Hex(0xfff59d), Hex(0x90caf9), Hex(0xffab91),
         };
 
-        public static readonly Color Background = new Color(0.96f, 0.93f, 0.88f);
-        public static readonly Color Ink = new Color(0.16f, 0.14f, 0.13f);
-        public static readonly Color Slot = new Color(0.86f, 0.82f, 0.76f);
+        public static readonly Color Background = Hex(0x22324a);
+        public static readonly Color BackgroundTop = Hex(0x4f6d8f);
+        public static readonly Color BackgroundBottom = Hex(0x141e2e);
+        public static readonly Color Card = Hex(0x2c3e57);
+        public static readonly Color Ink = Color.white;
+        public static readonly Color InkMuted = new Color(1f, 1f, 1f, 0.55f);
+        public static readonly Color Primary = Hex(0xff7043);
+        public static readonly Color Secondary = Hex(0x3b5474);
+        public static readonly Color Success = Hex(0x43a047);
+        public static readonly Color Slot = Hex(0x455a64);
+        public static readonly Color Hole = Hex(0x1b252f);
+        public static readonly Color Wood = Hex(0xb9824f);
+        public static readonly Color Steel = Hex(0xb0bec5);
 
         public static Color ScrewColor(int c) => c >= 0 && c < Screw.Length ? Screw[c] : Color.gray;
     }

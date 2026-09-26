@@ -65,7 +65,8 @@ namespace ScrewGame.Presentation
             var go = new GameObject("Button " + text, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
             var img = go.GetComponent<Image>();
-            img.color = color ?? new Color(1f, 1f, 1f, 0.95f);
+            img.color = color ?? Palette.Secondary;
+            Round(img);
             var b = go.GetComponent<Button>();
             var colors = b.colors;
             colors.pressedColor = new Color(0.8f, 0.8f, 0.8f);
@@ -73,11 +74,38 @@ namespace ScrewGame.Presentation
             b.colors = colors;
             b.onClick.AddListener(() => onClick());
             var label = Label(go.transform, text, fontSize);
+            label.fontStyle = FontStyles.Bold;
+            label.color = Color.white;
             label.margin = new Vector4(12, 6, 12, 6);
             var le = go.AddComponent<LayoutElement>();
             le.minHeight = 120f;
             le.preferredHeight = 120f;
             return b;
+        }
+
+        private static Sprite _rounded;
+
+        /// <summary>Applies a generated 9-sliced rounded-rectangle sprite.</summary>
+        public static void Round(Image img, float cornerScale = 1f)
+        {
+            if (_rounded == null)
+            {
+                const int size = 96, r = 40;
+                var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear };
+                for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                {
+                    float dx = Mathf.Max(0f, Mathf.Max(r - x - 0.5f, x + 0.5f - (size - r)));
+                    float dy = Mathf.Max(0f, Mathf.Max(r - y - 0.5f, y + 0.5f - (size - r)));
+                    float a = Mathf.Clamp01(r - Mathf.Sqrt(dx * dx + dy * dy) + 0.5f);
+                    tex.SetPixel(x, y, new Color(1f, 1f, 1f, a));
+                }
+                tex.Apply();
+                _rounded = Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect, new Vector4(r + 2, r + 2, r + 2, r + 2));
+            }
+            img.sprite = _rounded;
+            img.type = Image.Type.Sliced;
+            img.pixelsPerUnitMultiplier = 1.4f / cornerScale;
         }
 
         public static void SetText(Button b, string text) => b.GetComponentInChildren<TextMeshProUGUI>().text = text;

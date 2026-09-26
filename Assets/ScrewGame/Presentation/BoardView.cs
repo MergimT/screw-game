@@ -12,15 +12,25 @@ namespace ScrewGame.Presentation
     /// </summary>
     public sealed class BoardView : MonoBehaviour
     {
-        public float MoveSeconds = 0.28f;
+        public float MoveSeconds = 0.3f;
         public bool ReducedMotion;
+        /// <summary>Camera-attached parent for the trays and buffer so they stay fixed on screen while the object orbits.</summary>
         public Transform TrayAnchor;
+
+        private const float HoldScrewScale = 1.45f;
+        private const float TraySpacing = 3.25f;
+        private const float TrayRowZ = 0.75f;
+        private const float BufferRowZ = -0.7f;
+        private const float BufferSpacing = 1.05f;
+        private const float HoldingDepth = 6f;
+        private static readonly Color BarColor = new Color(Palette.Slot.r * 0.8f, Palette.Slot.g * 0.8f, Palette.Slot.b * 0.8f, 1f);
+        private static readonly float[] TrayHoleX = { -0.9f, 0f, 0.9f };
 
         private readonly Dictionary<string, ScrewView> _screws = new Dictionary<string, ScrewView>();
         private readonly Dictionary<string, PartView> _parts = new Dictionary<string, PartView>();
-        private readonly List<Transform> _traySlots = new List<Transform>();
-        private readonly List<Transform> _bufferSlots = new List<Transform>();
+        private readonly List<Transform> _trays = new List<Transform>();
         private readonly List<Renderer> _trayRenderers = new List<Renderer>();
+        private readonly List<Vector3> _bufferPos = new List<Vector3>();
         private Transform _objectRoot;
         private Transform _holdRoot;
         private CompiledLevel _level;
@@ -30,6 +40,7 @@ namespace ScrewGame.Presentation
 
         public bool IsAnimating => _animating > 0;
         public IReadOnlyDictionary<string, ScrewView> Screws => _screws;
+        public Bounds ObjectBounds { get; private set; }
 
         public void Build(CompiledLevel level, Material litTemplate)
         {
@@ -41,82 +52,153 @@ namespace ScrewGame.Presentation
             _holdRoot = new GameObject("Holding").transform;
             _holdRoot.SetParent(TrayAnchor != null ? TrayAnchor : transform, false);
 
+            var bounds = new Bounds(Vector3.zero, Vector3.zero);
+            bool first = true;
             foreach (var p in level.Definition.Parts)
             {
-                var go = GameObject.CreatePrimitive(p.Shape == "cylinder" ? PrimitiveType.Cylinder : PrimitiveType.Cube);
-                go.name = "Part " + p.Id;
-                go.transform.SetParent(_objectRoot, false);
+                var size = V(p.Size);
+                float minDim = Mathf.Min(size.x, Mathf.Min(size.y, size.z));
+                var color = Palette.PartMaterial[Mathf.Abs(p.Material) % Palette.PartMaterial.Length];
+                Mesh mesh = p.Shape == "cylinder"
+                    ? MeshKit.Cylinder(Mathf.Max(size.x, size.z) * 0.5f, size.y, 40, -1f, Mathf.Min(0.06f, minDim * 0.3f))
+                    : MeshKit.RoundedBox(size, Mathf.Min(0.09f, minDim * 0.35f));
+                var go = MeshKit.Make("Part " + p.Id, mesh, Mat(color, 0.55f, 0f), _objectRoot);
                 go.transform.localPosition = V(p.Position);
                 go.transform.localEulerAngles = V(p.Rotation);
-                go.transform.localScale = V(p.Size);
-                go.GetComponent<Renderer>().sharedMaterial = Mat(Palette.PartMaterial[Mathf.Abs(p.Material) % Palette.PartMaterial.Length]);
+                Collider col;
+                if (p.Shape == "cylinder")
+                {
+                    var mc = go.AddComponent<MeshCollider>();
+                    mc.sharedMesh = mesh;
+                    mc.convex = true;
+                    col = mc;
+                }
+                else
+                {
+                    var bc = go.AddComponent<BoxCollider>();
+                    bc.size = size;
+                    col = bc;
+                }
                 var pv = go.AddComponent<PartView>();
                 pv.PartId = p.Id;
-                pv.Collider = go.GetComponent<Collider>();
+                pv.Collider = col;
                 _parts[p.Id] = pv;
-            }
 
+                var rot = Quaternion.Euler(V(p.Rotation));
+                for (int c = 0; c < 8; c++)
+                {
+                    var corner = new Vector3((c & 1) == 0 ? -0.5f : 0.5f, (c & 2) == 0 ? -0.5f : 0.5f, (c & 4) == 0 ? -0.5f : 0.5f);
+                    var wp = V(p.Position) + rot * Vector3.Scale(corner, size);
+                    if (first) { bounds = new Bounds(wp, Vector3.zero); first = false; }
+                    else bounds.Encapsulate(wp);
+                }
+            }
+            bounds.Expand(0.3f);
+            ObjectBounds = bounds;
+
+            var pedestalRadius = Mathf.Max(bounds.extents.x, bounds.extents.z) * 1.02f + 0.15f;
+            var pedestal = MeshKit.Make("Pedestal", MeshKit.Cylinder(pedestalRadius, 0.35f, 64, -1f, 0.08f), Mat(Palette.Wood, 0.2f, 0f), _objectRoot, false);
+            pedestal.transform.localPosition = new Vector3(bounds.center.x, bounds.min.y - 0.45f, bounds.center.z);
+
+            var holeMat = Mat(Palette.Hole, 0.1f, 0f);
             foreach (var s in level.Definition.Screws)
             {
-                var root = new GameObject("Screw " + s.Id);
-                root.transform.SetParent(_objectRoot, false);
-                var head = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                head.name = "Head";
-                head.transform.SetParent(root.transform, false);
-                head.transform.localScale = new Vector3(0.34f, 0.05f, 0.34f);
-                head.transform.localPosition = new Vector3(0f, 0.05f, 0f);
-                head.GetComponent<Renderer>().sharedMaterial = Mat(Palette.ScrewColor(s.Color));
-                Object.Destroy(head.GetComponent<Collider>());
-
-                var slotMark = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                slotMark.name = "Slot";
-                slotMark.transform.SetParent(root.transform, false);
-                slotMark.transform.localScale = new Vector3(0.24f, 0.02f, 0.05f);
-                slotMark.transform.localPosition = new Vector3(0f, 0.105f, 0f);
-                slotMark.GetComponent<Renderer>().sharedMaterial = Mat(Palette.ScrewColor(s.Color) * 0.55f);
-                Object.Destroy(slotMark.GetComponent<Collider>());
-
-                var col = root.AddComponent<CapsuleCollider>();
-                col.direction = 1;
-                col.radius = 0.2f;
-                col.height = 0.3f;
-                col.center = new Vector3(0f, 0.08f, 0f);
-                var sv = root.AddComponent<ScrewView>();
-                sv.ScrewId = s.Id;
-                sv.Color = s.Color;
-                sv.Collider = col;
-                _screws[s.Id] = sv;
                 level.TryGetScrew(s.Id, out var si);
+                var partDef = level.Definition.Parts[level.ScrewPart[si]];
+                var partView = _parts[partDef.Id];
+                var hole = MeshKit.Make("Hole " + s.Id, MeshKit.Disc(0.12f, 20), holeMat, partView.transform, false);
+                var partPos = V(partDef.Position);
+                var normalLocal = V(s.Normal).normalized;
+                hole.transform.localPosition = V(s.Position) - partPos + normalLocal * 0.004f;
+                hole.transform.localRotation = Quaternion.FromToRotation(Vector3.up, normalLocal);
+
+                var sv = MakeScrew(s.Id, s.Color, _objectRoot);
+                _screws[s.Id] = sv;
                 ResetScrewOnPart(si, sv);
             }
 
             BuildHolding(level);
         }
 
+        private ScrewView MakeScrew(string id, int color, Transform parent)
+        {
+            var root = new GameObject("Screw " + id);
+            root.transform.SetParent(parent, false);
+            var paint = Mat(Palette.ScrewColor(color), 0.75f, 0.2f);
+            var steel = Mat(Palette.Steel, 0.8f, 0.9f);
+            var dark = Mat(new Color(0.13f, 0.13f, 0.14f), 0.3f, 0f);
+            MeshKit.Make("Head", MeshKit.Cylinder(0.19f, 0.085f, 32, 0.19f, 0.035f), paint, root.transform);
+            var slotMesh = MeshKit.RoundedBox(new Vector3(0.25f, 0.03f, 0.045f), 0.01f, 2);
+            var s1 = MeshKit.Make("Slot", slotMesh, dark, root.transform, false);
+            s1.transform.localPosition = new Vector3(0f, 0.085f, 0f);
+            var s2 = MeshKit.Make("Slot", slotMesh, dark, root.transform, false);
+            s2.transform.localPosition = new Vector3(0f, 0.085f, 0f);
+            s2.transform.localRotation = Quaternion.Euler(0f, 90f, 0f);
+            var shaft = MeshKit.Make("Shaft", MeshKit.Cylinder(0.025f, 0.42f, 12, 0.055f), steel, root.transform);
+            shaft.transform.localPosition = new Vector3(0f, -0.42f, 0f);
+            var thread = MeshKit.Cylinder(0.072f, 0.022f, 14, 0.072f, 0.01f);
+            for (int i = 0; i < 4; i++)
+            {
+                var t = MeshKit.Make("Thread", thread, steel, root.transform, false);
+                t.transform.localPosition = new Vector3(0f, -0.08f - i * 0.085f, 0f);
+                t.transform.localScale = new Vector3(1f - i * 0.1f, 1f, 1f - i * 0.1f);
+            }
+            var col = root.AddComponent<SphereCollider>();
+            col.radius = 0.24f;
+            col.center = new Vector3(0f, 0.05f, 0f);
+            var sv = root.AddComponent<ScrewView>();
+            sv.ScrewId = id;
+            sv.Color = color;
+            sv.Collider = col;
+            return sv;
+        }
+
         private void BuildHolding(CompiledLevel level)
         {
+            var holeMat = Mat(Palette.Hole, 0.1f, 0f);
+            var trayMesh = MeshKit.RoundedBox(new Vector3(2.9f, 0.3f, 1.1f), 0.28f);
             for (int t = 0; t < level.TrayPositions; t++)
             {
-                var tray = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                tray.name = "Tray " + t;
-                Object.Destroy(tray.GetComponent<Collider>());
-                tray.transform.SetParent(_holdRoot, false);
-                tray.transform.localScale = new Vector3(1.5f, 0.12f, 0.6f);
-                tray.transform.localPosition = new Vector3((t - (level.TrayPositions - 1) * 0.5f) * 1.9f, 0f, 0f);
+                var tray = MeshKit.Make("Tray " + t, trayMesh, Mat(Palette.Slot, 0.5f, 0f), _holdRoot);
+                tray.transform.localPosition = TrayHome(t);
+                foreach (var x in TrayHoleX)
+                {
+                    var h = MeshKit.Make("Hole", MeshKit.Disc(0.3f), holeMat, tray.transform, false);
+                    h.transform.localPosition = new Vector3(x, 0.152f, 0f);
+                }
                 _trayRenderers.Add(tray.GetComponent<Renderer>());
-                _traySlots.Add(tray.transform);
+                _trays.Add(tray.transform);
             }
+            float barWidth = level.BufferSlots * BufferSpacing + 0.35f;
+            var bar = MeshKit.Make("Buffer", MeshKit.RoundedBox(new Vector3(barWidth, 0.3f, 1.05f), 0.28f), Mat(BarColor, 0.5f, 0f), _holdRoot);
+            bar.transform.localPosition = new Vector3(0f, 0f, BufferRowZ);
             for (int b = 0; b < level.BufferSlots; b++)
             {
-                var slot = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-                slot.name = "Buffer " + b;
-                Object.Destroy(slot.GetComponent<Collider>());
-                slot.transform.SetParent(_holdRoot, false);
-                slot.transform.localScale = new Vector3(0.5f, 0.03f, 0.5f);
-                slot.transform.localPosition = new Vector3((b - (level.BufferSlots - 1) * 0.5f) * 0.62f, 0f, -0.9f);
-                slot.GetComponent<Renderer>().sharedMaterial = Mat(Palette.Slot);
-                _bufferSlots.Add(slot.transform);
+                var pos = new Vector3((b - (level.BufferSlots - 1) * 0.5f) * BufferSpacing, 0.152f, BufferRowZ);
+                var h = MeshKit.Make("Hole", MeshKit.Disc(0.3f), holeMat, _holdRoot, false);
+                h.transform.localPosition = pos;
+                _bufferPos.Add(pos);
             }
+        }
+
+        private Vector3 TrayHome(int t) => new Vector3((t - (_level.TrayPositions - 1) * 0.5f) * TraySpacing, 0f, TrayRowZ);
+
+        /// <summary>Places the holding area between two viewport heights, scaled to fit the screen width.</summary>
+        public void LayoutHolding(Camera cam, float viewportBottom, float viewportTop)
+        {
+            if (_holdRoot == null || cam == null) return;
+            float mid = (viewportBottom + viewportTop) * 0.5f;
+            var center = cam.transform.InverseTransformPoint(cam.ViewportToWorldPoint(new Vector3(0.5f, mid, HoldingDepth)));
+            var left = cam.transform.InverseTransformPoint(cam.ViewportToWorldPoint(new Vector3(0f, mid, HoldingDepth)));
+            var top = cam.transform.InverseTransformPoint(cam.ViewportToWorldPoint(new Vector3(0.5f, viewportTop, HoldingDepth)));
+            float halfW = Mathf.Abs(center.x - left.x);
+            float halfH = Mathf.Abs(top.y - center.y);
+            float layoutHalfW = Mathf.Max(_level.TrayPositions * TraySpacing * 0.5f, (_bufferPos.Count * BufferSpacing + 0.35f) * 0.5f) + 0.1f;
+            const float layoutHalfH = 1.3f;
+            float scale = Mathf.Min(halfW * 0.94f / layoutHalfW, halfH * 0.95f / layoutHalfH);
+            _holdRoot.localPosition = center;
+            _holdRoot.localRotation = Quaternion.Euler(-68f, 0f, 0f);
+            _holdRoot.localScale = Vector3.one * scale;
         }
 
         public void Clear()
@@ -125,8 +207,8 @@ namespace ScrewGame.Presentation
             _animating = 0;
             _screws.Clear();
             _parts.Clear();
-            _traySlots.Clear();
-            _bufferSlots.Clear();
+            _trays.Clear();
+            _bufferPos.Clear();
             _trayRenderers.Clear();
             if (_objectRoot != null) Destroy(_objectRoot.gameObject);
             if (_holdRoot != null) Destroy(_holdRoot.gameObject);
@@ -148,6 +230,11 @@ namespace ScrewGame.Presentation
                 pv.transform.localEulerAngles = V(_level.Definition.Parts[p].Rotation);
                 pv.Collider.enabled = !st.Released[p];
             }
+            for (int t = 0; t < _trays.Count; t++)
+            {
+                _trays[t].localPosition = TrayHome(t);
+                _trays[t].localScale = Vector3.one;
+            }
             for (int s = 0; s < _level.ScrewCount; s++)
             {
                 var sv = _screws[_level.ScrewIds[s]];
@@ -160,20 +247,33 @@ namespace ScrewGame.Presentation
                 }
                 else if (place == ScrewPlace.Collected)
                 {
+                    sv.transform.SetParent(_holdRoot, false);
                     sv.gameObject.SetActive(false);
                 }
                 else
                 {
                     sv.Collider.enabled = false;
                     sv.gameObject.SetActive(true);
-                    sv.transform.SetParent(_holdRoot, false);
+                    if (place == ScrewPlace.Tray) PlaceInTray(sv.transform, st.Slot[s], IndexInTray(st, s));
+                    else
+                    {
+                        sv.transform.SetParent(_holdRoot, false);
+                        sv.transform.localPosition = _bufferPos[st.Slot[s]];
+                    }
                     sv.transform.localRotation = Quaternion.identity;
-                    sv.transform.localScale = Vector3.one;
-                    sv.transform.localPosition = place == ScrewPlace.Tray ? TrayPos(st.Slot[s], IndexInTray(st, s)) : BufferPos(st.Slot[s]);
+                    sv.transform.localScale = Vector3.one * HoldScrewScale;
                 }
             }
             RefreshTrays(st);
         }
+
+        private void PlaceInTray(Transform screw, int tray, int index)
+        {
+            screw.SetParent(_trays[tray], false);
+            screw.localPosition = TrayHolePos(index);
+        }
+
+        private static Vector3 TrayHolePos(int index) => new Vector3(TrayHoleX[Mathf.Clamp(index, 0, TrayHoleX.Length - 1)], 0.155f, 0f);
 
         private void ResetScrewOnPart(int s, ScrewView sv)
         {
@@ -183,7 +283,7 @@ namespace ScrewGame.Presentation
             var partRot = Quaternion.Euler(V(partDef.Rotation));
             var normal = partRot * V(def.Normal).normalized;
             sv.transform.SetParent(_objectRoot, false);
-            sv.transform.localPosition = partPos + partRot * (V(def.Position) - partPos) + normal * 0.02f;
+            sv.transform.localPosition = partPos + partRot * (V(def.Position) - partPos) + normal * 0.005f;
             sv.transform.localRotation = Quaternion.FromToRotation(Vector3.up, normal);
             sv.transform.localScale = Vector3.one;
         }
@@ -195,28 +295,29 @@ namespace ScrewGame.Presentation
             return i;
         }
 
-        private Vector3 TrayPos(int tray, int index)
+        private static int ScrewsIn(Transform tray)
         {
-            var c = _traySlots[tray].localPosition;
-            return c + new Vector3((index - 1) * 0.45f, 0.1f, 0f);
+            int n = 0;
+            foreach (Transform c in tray) if (c.gameObject.activeSelf && c.GetComponent<ScrewView>() != null) n++;
+            return n;
         }
-
-        private Vector3 BufferPos(int slot) => _bufferSlots[slot].localPosition + new Vector3(0f, 0.05f, 0f);
 
         private void RefreshTrays(PuzzleState st)
         {
-            for (int t = 0; t < _trayRenderers.Count; t++)
-            {
-                var c = st.TrayColor[t] >= 0 ? Color.Lerp(Palette.ScrewColor(st.TrayColor[t]), Color.white, 0.55f) : Palette.Slot;
-                _trayRenderers[t].sharedMaterial = Mat(c);
-            }
+            for (int t = 0; t < _trayRenderers.Count; t++) SetTrayColor(t, st.TrayColor[t]);
+        }
+
+        private void SetTrayColor(int t, int color)
+        {
+            var c = color >= 0 ? Palette.ScrewColor(color) : Palette.Slot * 0.8f;
+            c.a = 1f;
+            _trayRenderers[t].sharedMaterial = Mat(c, 0.55f, 0f);
         }
 
         /// <summary>Animates the ordered events of one accepted command, then snaps to the settled state.</summary>
         public void Play(IReadOnlyList<VisualEvent> events, PuzzleState settled)
         {
             if (_animating > 0 && _lastSettled != null) Rebuild(_lastSettled);
-            // Released parts and the removed screw stop being pickable immediately.
             foreach (var e in events)
             {
                 if (e is ScrewRemovedEvent r && _screws.TryGetValue(r.ScrewId, out var sv)) sv.Collider.enabled = false;
@@ -234,89 +335,163 @@ namespace ScrewGame.Presentation
             {
                 if (e is ScrewRemovedEvent r && _screws.TryGetValue(r.ScrewId, out var sv))
                 {
-                    var from = sv.transform.position;
-                    var lift = from + sv.transform.up * 0.6f;
-                    yield return Tween(sv.transform, from, lift, MoveSeconds * 0.6f);
-                    sv.transform.SetParent(_holdRoot, true);
-                    int s;
-                    _level.TryGetScrew(r.ScrewId, out s);
-                    var target = _holdRoot.TransformPoint(r.Destination == DestinationKind.Tray ? TrayPos(r.DestinationIndex, IndexInTray(settled, s)) : BufferPos(r.DestinationIndex));
-                    yield return Tween(sv.transform, lift, target, MoveSeconds);
+                    yield return Unscrew(sv.transform, MoveSeconds * 0.7f);
+                    yield return FlyTo(sv.transform, r.Destination == DestinationKind.Tray ? _trays[r.DestinationIndex] : _holdRoot,
+                        r.Destination == DestinationKind.Tray ? TrayHolePos(ScrewsIn(_trays[r.DestinationIndex])) : _bufferPos[r.DestinationIndex], MoveSeconds);
                 }
                 else if (e is PartReleasedEvent pr && _parts.TryGetValue(pr.PartId, out var pv))
                 {
                     StartCoroutine(Fall(pv.transform));
                 }
-                else if (e is TrayCompletedEvent || e is BufferTransferredEvent || e is TrayRefilledEvent)
+                else if (e is TrayCompletedEvent tc)
                 {
-                    yield return new WaitForSeconds(MoveSeconds * 0.5f);
+                    yield return new WaitForSeconds(0.08f);
+                    yield return TrayLeave(tc.TrayIndex);
+                }
+                else if (e is TrayRefilledEvent tr)
+                {
+                    yield return TrayArrive(tr.TrayIndex, tr.Color);
+                }
+                else if (e is BufferTransferredEvent bt && _screws.TryGetValue(bt.ScrewId, out var bsv))
+                {
+                    yield return FlyTo(bsv.transform, _trays[bt.ToTray], TrayHolePos(ScrewsIn(_trays[bt.ToTray])), MoveSeconds * 0.8f);
                 }
             }
             _animating = 0;
             Rebuild(settled);
         }
 
-        private IEnumerator Tween(Transform t, Vector3 a, Vector3 b, float seconds)
+        private IEnumerator Unscrew(Transform t, float seconds)
         {
-            float k = 0f;
-            while (k < 1f)
+            var start = t.localPosition;
+            var up = t.localRotation * Vector3.up;
+            var rot = t.localRotation;
+            for (float k = 0f; k < 1f;)
             {
-                k += Time.deltaTime / Mathf.Max(0.01f, seconds);
-                float e = 1f - Mathf.Pow(1f - Mathf.Clamp01(k), 3f);
-                t.position = Vector3.LerpUnclamped(a, b, e);
+                k = Mathf.Min(1f, k + Time.deltaTime / seconds);
+                t.localPosition = start + up * (0.55f * Ease(k));
+                t.localRotation = rot * Quaternion.Euler(0f, -900f * k, 0f);
                 yield return null;
             }
+        }
+
+        private IEnumerator FlyTo(Transform t, Transform parent, Vector3 localTarget, float seconds)
+        {
+            t.SetParent(parent, true);
+            var p0 = t.localPosition;
+            var r0 = t.localRotation;
+            var s0 = t.localScale;
+            var s1 = Vector3.one * HoldScrewScale;
+            var lift = Vector3.up * 1.2f;
+            for (float k = 0f; k < 1f;)
+            {
+                k = Mathf.Min(1f, k + Time.deltaTime / seconds);
+                float e = Ease(k);
+                t.localPosition = Vector3.LerpUnclamped(p0, localTarget, e) + lift * Mathf.Sin(k * Mathf.PI) * 0.6f;
+                t.localRotation = Quaternion.Slerp(r0, Quaternion.identity, e);
+                t.localScale = Vector3.LerpUnclamped(s0, s1, e);
+                yield return null;
+            }
+            yield return Punch(t, s1, 0.12f);
+        }
+
+        private IEnumerator Punch(Transform t, Vector3 baseScale, float seconds)
+        {
+            for (float k = 0f; k < 1f;)
+            {
+                k = Mathf.Min(1f, k + Time.deltaTime / seconds);
+                t.localScale = baseScale * (1f + 0.18f * Mathf.Sin(k * Mathf.PI));
+                yield return null;
+            }
+            t.localScale = baseScale;
+        }
+
+        private IEnumerator TrayLeave(int tray)
+        {
+            var t = _trays[tray];
+            yield return Punch(t, Vector3.one, 0.14f);
+            var p0 = t.localPosition;
+            for (float k = 0f; k < 1f;)
+            {
+                k = Mathf.Min(1f, k + Time.deltaTime / (MoveSeconds * 1.1f));
+                float e = k * k;
+                t.localPosition = p0 + new Vector3(0f, 0.6f * e, 4.5f * e);
+                t.localScale = Vector3.one * Mathf.Lerp(1f, 0.5f, e);
+                yield return null;
+            }
+            var done = new List<Transform>();
+            foreach (Transform c in t) if (c.GetComponent<ScrewView>() != null) done.Add(c);
+            foreach (var c in done) { c.SetParent(_holdRoot, false); c.gameObject.SetActive(false); }
+            t.localScale = Vector3.zero;
+            t.localPosition = TrayHome(tray);
+        }
+
+        private IEnumerator TrayArrive(int tray, int color)
+        {
+            var t = _trays[tray];
+            SetTrayColor(tray, color);
+            t.localPosition = TrayHome(tray);
+            for (float k = 0f; k < 1f;)
+            {
+                k = Mathf.Min(1f, k + Time.deltaTime / (MoveSeconds * 0.9f));
+                t.localScale = Vector3.one * EaseBack(k);
+                yield return null;
+            }
+            t.localScale = Vector3.one;
         }
 
         private IEnumerator Fall(Transform part)
         {
             var start = part.position;
-            float v = 0f, y = 0f;
-            while (y > -8f && part != null)
+            var spin = new Vector3(Random.Range(-90f, 90f), 0f, Random.Range(-120f, 120f));
+            var drift = new Vector3(Random.Range(-1.5f, 1.5f), 0f, Random.Range(-1.5f, 1.5f));
+            float v = 3.5f, y = 0f, time = 0f;
+            while (y > -12f && part != null)
             {
-                v -= 18f * Time.deltaTime;
+                time += Time.deltaTime;
+                v -= 20f * Time.deltaTime;
                 y += v * Time.deltaTime;
-                part.position = start + new Vector3(0f, y, 0f);
-                part.Rotate(40f * Time.deltaTime, 0f, 25f * Time.deltaTime, Space.Self);
+                part.position = start + new Vector3(0f, y, 0f) + drift * time;
+                part.Rotate(spin * Time.deltaTime, Space.Self);
                 yield return null;
             }
             if (part != null) part.gameObject.SetActive(false);
         }
 
-        private readonly Dictionary<Color, Material> _mats = new Dictionary<Color, Material>();
+        private static float Ease(float k) => 1f - Mathf.Pow(1f - k, 3f);
+        private static float EaseBack(float k) => 1f + 2.7f * Mathf.Pow(k - 1f, 3f) + 1.7f * Mathf.Pow(k - 1f, 2f);
 
-        private Material Mat(Color c)
+        private readonly Dictionary<string, Material> _mats = new Dictionary<string, Material>();
+
+        private Material Mat(Color c, float smoothness, float metallic)
         {
-            if (_mats.TryGetValue(c, out var m)) return m;
+            var key = ColorUtility.ToHtmlStringRGBA(c) + smoothness.ToString("F2") + metallic.ToString("F2");
+            if (_mats.TryGetValue(key, out var m)) return m;
             m = new Material(_litTemplate) { color = c };
             if (m.HasProperty("_BaseColor")) m.SetColor("_BaseColor", c);
-            if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", 0.35f);
-            _mats[c] = m;
+            if (m.HasProperty("_Smoothness")) m.SetFloat("_Smoothness", smoothness);
+            if (m.HasProperty("_Metallic")) m.SetFloat("_Metallic", metallic);
+            _mats[key] = m;
             return m;
         }
 
         public bool ShowSymbols;
         private Transform _highlight;
 
-        /// <summary>Marks a hinted screw with a floating ring; null clears it.</summary>
+        /// <summary>Marks a hinted screw with a pulsing ring; null clears it.</summary>
         public void Highlight(string screwId)
         {
             if (_highlight != null) Destroy(_highlight.gameObject);
             _highlight = null;
             if (screwId == null || !_screws.TryGetValue(screwId, out var sv) || !sv.gameObject.activeInHierarchy) return;
-            var ring = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-            ring.name = "HintRing";
-            Destroy(ring.GetComponent<Collider>());
-            ring.transform.SetParent(sv.transform, false);
-            ring.transform.localPosition = new Vector3(0f, 0.02f, 0f);
-            ring.transform.localScale = new Vector3(0.55f, 0.01f, 0.55f);
-            ring.GetComponent<Renderer>().sharedMaterial = Mat(Color.white);
+            var ring = MeshKit.Make("HintRing", MeshKit.Cylinder(0.3f, 0.02f, 32), Mat(new Color(1f, 1f, 0.85f), 0.9f, 0f), sv.transform, false);
+            ring.transform.localPosition = new Vector3(0f, 0.01f, 0f);
             _highlight = ring.transform;
         }
 
         private void LateUpdate()
         {
-            if (_highlight != null) _highlight.localScale = new Vector3(1f, 0.02f, 1f) * (0.5f + 0.08f * Mathf.Sin(Time.time * 6f));
+            if (_highlight != null) _highlight.localScale = new Vector3(1f, 1f, 1f) * (1f + 0.2f * Mathf.Sin(Time.time * 7f));
         }
 
         public ScrewView Find(string id) => _screws.TryGetValue(id, out var v) ? v : null;

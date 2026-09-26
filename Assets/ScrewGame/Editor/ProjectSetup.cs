@@ -23,6 +23,7 @@ namespace ScrewGame.EditorTools
         public const string PipelinePath = SettingsDir + "/ScrewURP.asset";
         public const string RendererPath = SettingsDir + "/ScrewURP_Renderer.asset";
         public const string LitMaterialPath = SettingsDir + "/ScrewLit.mat";
+        public const string UnlitMaterialPath = SettingsDir + "/ScrewUnlit.mat";
         /// <summary>PLACEHOLDER development identifier; release builds replace it from SCREW_BUNDLE_ID.</summary>
         public const string BundleId = "com.nyrico.projectscrew.dev";
         public const string ProductName = "Screw Workshop";
@@ -58,7 +59,7 @@ namespace ScrewGame.EditorTools
         {
             Directory.CreateDirectory(SettingsDir);
             var asset = AssetDatabase.LoadAssetAtPath<UniversalRenderPipelineAsset>(PipelinePath);
-            if (asset != null) return asset;
+            if (asset != null) { ConfigurePipeline(asset); return asset; }
             var renderer = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
             if (renderer == null)
             {
@@ -69,9 +70,26 @@ namespace ScrewGame.EditorTools
             asset.renderScale = 1f;
             asset.msaaSampleCount = 4;
             asset.supportsHDR = false;
-            asset.shadowDistance = 25f;
             AssetDatabase.CreateAsset(asset, PipelinePath);
+            ConfigurePipeline(asset);
             return asset;
+        }
+
+        private static void ConfigurePipeline(UniversalRenderPipelineAsset asset)
+        {
+            asset.renderScale = 1f;
+            asset.msaaSampleCount = 4;
+            asset.supportsHDR = false;
+            asset.shadowDistance = 30f;
+            asset.shadowCascadeCount = 1;
+            asset.mainLightShadowmapResolution = 2048;
+            var so = new SerializedObject(asset);
+            var soft = so.FindProperty("m_SoftShadowsSupported");
+            if (soft != null) soft.boolValue = true;
+            var addShadows = so.FindProperty("m_AdditionalLightShadowsSupported");
+            if (addShadows != null) addShadows.boolValue = false;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            EditorUtility.SetDirty(asset);
         }
 
         private static Material EnsureLitMaterial()
@@ -80,6 +98,15 @@ namespace ScrewGame.EditorTools
             if (mat != null) return mat;
             mat = new Material(Shader.Find("Universal Render Pipeline/Lit"));
             AssetDatabase.CreateAsset(mat, LitMaterialPath);
+            return mat;
+        }
+
+        private static Material EnsureUnlitMaterial()
+        {
+            var mat = AssetDatabase.LoadAssetAtPath<Material>(UnlitMaterialPath);
+            if (mat != null) return mat;
+            mat = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+            AssetDatabase.CreateAsset(mat, UnlitMaterialPath);
             return mat;
         }
 
@@ -92,6 +119,7 @@ namespace ScrewGame.EditorTools
             var root = Object.FindFirstObjectByType<GameRoot>();
             if (root == null) root = new GameObject("GameRoot").AddComponent<GameRoot>();
             root.LitTemplate = lit;
+            root.UnlitTemplate = EnsureUnlitMaterial();
             EditorUtility.SetDirty(root);
             EditorSceneManager.SaveScene(scene, ScenePath);
             EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene(ScenePath, true) };

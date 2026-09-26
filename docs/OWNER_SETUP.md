@@ -2,7 +2,8 @@
 
 | Item | Needed for | Status | How |
 | --- | --- | --- | --- |
-| Unity license usable in batch mode | Compile, EditMode tests, scene start, Android APK, iOS export | **Blocking** | `UNITY_EMAIL`/`UNITY_PASSWORD` are saved and sign-in works, but the account has no entitlement usable headless (`com.unity.editor.headless` not found). Re-tested 2026-09-26 with the Student Plan account: batch mode still exit 198 (`com.unity.editor.headless` not found); non-batch editor under Xvfb reports `com.unity.editor.ui` not found because no Hub-activated license exists. Required: sign in to Unity Hub on the Devin Desktop and activate the Student/Personal license once (Preferences → Licenses → Add). Either (a) open the Devin Desktop tab, accept Unity Hub terms yourself and activate a free Personal license, or (b) provide a Pro/Build Server serial or license server. |
+| Unity license usable in batch mode | Compile, tests, exports | **Done** | Student Plan license activated in Unity Hub 2026-09-26; batch mode works. Rotate the Unity password (it was pasted in chat) and update `UNITY_PASSWORD`. |
+| Mac with Xcode + Apple Developer account | iPhone archive, signing, TestFlight/device install | **Blocking iPhone device gate** | Open `Builds/iOS/Xcode/Unity-iPhone.xcodeproj` on macOS, set team + final bundle ID (currently `com.nyrico.projectscrew.dev`), archive, install. |
 | macOS + Xcode 16+ machine | iOS archive, signing, TestFlight | Blocking for iOS only | Run `BuildScripts.IosXcodeExport`, then archive in Xcode. |
 | Apple Developer team ID, bundle ID, provisioning | iOS release | Pending | Set `SCREW_BUNDLE_ID`; configure signing in Xcode. |
 | Android upload keystore | Release AAB | Pending | Provide `SCREW_KEYSTORE_PATH`, `SCREW_KEYSTORE_PASS`, `SCREW_KEY_ALIAS`, `SCREW_KEY_PASS` (never commit). |
